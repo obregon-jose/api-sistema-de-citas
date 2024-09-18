@@ -19,30 +19,6 @@ class User extends Authenticatable
         return $this->hasMany(Profile::class);
     }
 
-    // Verifica si el usuario tiene un rol específico
-    public function hasRole($role)
-    {
-        return $this->profiles()->whereHas('role', function ($query) use ($role) {
-            $query->where('name', $role);
-        })->exists();
-    }
-
-    // public function role()
-    // {
-    //     return $this->profile->role; // Acceso al rol desde el perfil
-    // }
-
-    // public function hasRole($role)
-    // {
-    //     return $this->role->name === $role;
-    // }
-
-    // public function hasRole($role) {
-    //     return $this->roles()->where('name', $role)->exists();
-    // }
-
-
-
     /**
      * The attributes that are mass assignable.
      *

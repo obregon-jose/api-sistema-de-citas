@@ -1,36 +1,41 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Middleware\CheckRole;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:api');
 
+// RUTAS PUBLICAS (No requieren autenticación o roles)
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-// Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
 
-// 'role:root'
-Route::group(['middleware' => ['auth:api', ], ], function () {
-    Route::get('/s', function () {
+// Grupo de rutas que solo requieren autenticación
+Route::group(['middleware' => ['auth:api']], function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
 
-        $user = Auth::user();
+//NOTA: se puede agrupar pot petición donde cada rol tiene acceso a peticiones http especificas
 
+// Grupo de rutas que requieren el rol 'admin'
+Route::group(['middleware' => ['auth:api', CheckRole::class . ':root']], function () {
+    
+});
+
+// Grupo de rutas que requieren el rol 'peluquero'
+Route::group(['middleware' => ['auth:api', CheckRole::class . ':peluquero']], function () {
+    Route::get('/ss', function () {
         return response()->json([
-            'user' => $user
+            'message' => 'Permitido'
         ]);
-
-        // // Verificar si el usuario tiene el rol "admin"
-        // if ($user->hasRole('root')) {
-        //     return response()->json(['message' => 'No tienes permiso para acceder a esta ruta'], 403);
-        // }else{
-            return response()->json([
-                        'message' => 'FUNCIONAR'
-                    ]);
-        // }
-
     });
- });
+});
+
+// Grupo de rutas que requieren el rol 'cliente'
+Route::group(['middleware' => ['auth:api', CheckRole::class . ':cliente']], function () {
+    Route::get('/s', function () {
+        return response()->json([
+            'message' => 'Denegación'
+        ]);
+    });
+});
