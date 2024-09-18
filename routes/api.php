@@ -5,7 +5,7 @@ use App\Http\Middleware\CheckRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-
+Route::get('/p', [AuthController::class, 'prueba']);
 // RUTAS PUBLICAS (No requieren autenticación o roles)
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -13,22 +13,25 @@ Route::post('/login', [AuthController::class, 'login']);
 // Grupo de rutas que solo requieren autenticación
 Route::group(['middleware' => ['auth:api']], function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/pp', [AuthController::class, 'prueba']); //doble ruta para registro
 });
 
 //NOTA: se puede agrupar pot petición donde cada rol tiene acceso a peticiones http especificas
 
-// Grupo de rutas que requieren el rol 'admin'
+// Grupo de rutas que requieren el rol 'root'
 Route::group(['middleware' => ['auth:api', CheckRole::class . ':root']], function () {
-    
-});
-
-// Grupo de rutas que requieren el rol 'peluquero'
-Route::group(['middleware' => ['auth:api', CheckRole::class . ':peluquero']], function () {
+    //revisar logica
+    // Route::post('/admin/users/{id}/assign-role', [AuthController::class, 'assignRole']);
     Route::get('/ss', function () {
         return response()->json([
             'message' => 'Permitido'
         ]);
     });
+});
+
+// Grupo de rutas que requieren el rol 'peluquero'
+Route::group(['middleware' => ['auth:api', CheckRole::class . ':peluquero']], function () {
+    
 });
 
 // Grupo de rutas que requieren el rol 'cliente'
