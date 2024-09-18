@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Laravel\Passport\ClientRepository as PassportClientRepository;
 
 class UserSedeer extends Seeder
 {
@@ -13,6 +14,10 @@ class UserSedeer extends Seeder
      */
     public function run(): void
     {
+        $clientRepository = new PassportClientRepository();
+        $client = $clientRepository->createPersonalAccessClient(
+            null, 'barbearía', 'http://your-callback-url'
+        );
         //
         DB::table('users')->insert([
             [

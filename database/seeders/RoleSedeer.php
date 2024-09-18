@@ -16,13 +16,13 @@ class RoleSedeer extends Seeder
         //
         DB::table('roles')->insert([
             [
-                'name' => 'root',
+                'name' => 'cliente',
             ],
             [
                 'name' => 'peluquero',
             ],
             [
-                'name' => 'cliente',
+                'name' => 'root',
             ],
         ]);
     }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Profile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -50,11 +51,56 @@ class AuthController extends Controller
 
     public function login(Request $request) 
     {
+        // try {
+        //     $validatedData = $request->validate([
+        //         "email" => "required|email",
+        //         "password" => "required"
+        //     ]);
 
+        //     $user = User::where("email", $request->email)->first();
+
+        //     if (!empty($user)) {
+                
+        //             if (Hash::check($request->password, $user->password)) {
+        //                 // $user->update(['failed_attempts' => 0]);
+        //                 $token = $user->createToken("token")->accessToken;
+        //                 return response()->json([
+        //                     "message" => "Login exitoso.",
+        //                     "user" => $user,
+        //                     "token" => $token,
+        //                     // "token_type" => "Bearer",
+        //                     // "expires_at" => now()->addHours(1),
+        //                 ], 200);
+        //             } else {
+        //                 // $this->handleFailedLogin($user);
+        //                 // return $this->sendFailedLoginResponse($user);
+        //             }
+                
+        //     } else {
+        //         return response()->json([
+        //             "message" => "Usuario no encontrado.",
+        //         ], 401);
+        //     }
+        // } catch (\Exception $err) {
+        //     return response()->json([
+        //         "message" => $err->getMessage(),
+        //         "error" => "Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.",
+        //     ], 500);
+        // }
     }
 
     public function logout(Request $request) 
     {
-        
+        try {
+            $request->user()->token()->revoke();
+            return response()->json([
+                "message" => "Sesión cerrada con éxito",
+            ], 200);
+        } catch (\Exception $err) {
+            return response()->json([
+                "message" => $err->getMessage(),
+                "error" => "Error al cerrar sesión",
+            ], 500);
+        }
     }
 }
