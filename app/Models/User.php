@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+// use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
@@ -11,6 +12,18 @@ use Laravel\Passport\HasApiTokens;
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasApiTokens;
+
+    // public function hasRole($roleName)
+    // {
+    //     return $this->profiles()->whereHas('role', function($query) use ($roleName) {
+    //         $query->where('name', $roleName);
+    //     })->exists();
+    // }
+
+    // public function profiles()
+    // {
+    //     return $this->hasMany(Profile::class);
+    // }
 
     /**
      * The attributes that are mass assignable.
@@ -45,4 +58,6 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+
 }
