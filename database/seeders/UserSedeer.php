@@ -30,7 +30,6 @@ class UserSedeer extends Seeder
                 'name' => 'Root SC',
                 'password' => bcrypt($passwordGenerado), 
             ]
-            // Actualizacion: Genear contraseñas aleatorias para root y peluquero y enviar las por correo, personalizar mensaje de Bienvenida
         );
 
         // Crear el perfil para el usuario root

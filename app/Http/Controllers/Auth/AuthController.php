@@ -22,7 +22,7 @@ class AuthController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|unique:users,email',
                 'password' => 'required|min:8|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/',
-                'role_id' => 'sometimes|exists:roles,id',
+                'role_id' => 'nullable|exists:roles,id',
                 // 'status' => 'nullable|boolean',
             ]);
 
@@ -33,6 +33,7 @@ class AuthController extends Controller
             $defaultRoleId = 1;
             if ($authenticatedUser) {
                 // Verificar si el usuario autenticado tiene el rol de 'root'
+                //NOTA: el error em profile es porque no esta detectando la función pero funciona normal el código
                 if ($authenticatedUser->profiles()->whereHas('role', function($query) {
                     $query->where('name', 'root');
                 })->exists()) {
@@ -56,7 +57,7 @@ class AuthController extends Controller
             $roleName = Role::find($defaultRoleId)->name;
             
             // Enviar correo de bienvenida
-            Mail::to($user->email)->send(new WelcomeEmail($user, $roleName, $passwordGenerado));
+            Mail::to($user->email)->send(new WelcomeEmail($user, $roleName, $passwordGenerado ?? ''));
             
             // Devolver respuesta
             return response()->json([
@@ -82,28 +83,32 @@ class AuthController extends Controller
                 "password" => "required"
             ]);
 
-            $user = User::where("email", $request->email)->first();
+            $user = User::withTrashed()->where("email", $request->email)->first();
 
             if (!empty($user)) {
-                
-                    if (Hash::check($request->password, $user->password)) {
-                        // $user->update(['failed_attempts' => 0]);
-                        $token = $user->createToken("token")->accessToken;
-                        return response()->json([
-                            "message" => "Login exitoso.",
-                            "user" => $user,
-                            "token" => $token,
-                            // "token_type" => "Bearer",
-                            // "expires_at" => now()->addHours(1),
-                        ], 200);
-                    } else {
-                        // $this->handleFailedLogin($user);
-                        // return $this->sendFailedLoginResponse($user);
-                    }
+                if ($user->trashed()) { //mostrar esto en caso de que se inactive una cuanta
+                    return response()->json([
+                        "message" => "Tenemos problemas para iniciar sesión con su cuanta, Comuníquese con el administrador.",
+                    ], 403);
+                }
+                if (Hash::check($request->password, $user->password)) {
+                    $token = $user->createToken("token")->accessToken;
+                    return response()->json([
+                        "message" => "Login exitoso.",
+                        "user" => $user,
+                        "token" => $token,
+                        // "token_type" => "Bearer",
+                        // "expires_at" => now()->addHours(1),
+                    ], 200);
+                } else {
+                    return response()->json([
+                        "message" => "Contraseña incorrecta"
+                    ], 401);
+                }
                 
             } else {
                 return response()->json([
-                    "message" => "Usuario no encontrado.",
+                    "message" => "No hemos encontrado un usuario registrado con este correo electrónico.",
                 ], 401);
             }
         } catch (\Exception $e) {
@@ -140,87 +145,3 @@ class AuthController extends Controller
         return $randomPassword;
     }
 }
-
-
-/*
-    public function login(Request $request)
-    {
-        try {
-            $validatedData = $request->validate([
-                "email" => "required|email",
-                "password" => "required"
-            ]);
-
-            $user = User::withTrashed()->where("email", $request->email)->first();
-
-            if (!empty($user)) {
-                if (!$user->trashed()) {
-                    if (Hash::check($request->password, $user->password)) {
-                        $user->update(['failed_attempts' => 0]);
-                        $token = $user->createToken("token")->accessToken;
-                        return response()->json([
-                            // "message" => "Login exitoso.",
-                            "user" => $user,
-                            "token" => $token,
-                            // "token_type" => "Bearer",
-                            // "expires_at" => now()->addHours(1),
-                        ], 200);
-                    } else {
-                        $this->handleFailedLogin($user);
-                        return $this->sendFailedLoginResponse($user);
-                    }
-                } else {
-                    return response()->json([
-                        "message" => "Su cuenta está inactiva, Comuníquese con el administrador.",
-                    ], 403);
-                }
-            } else {
-                return response()->json([
-                    "message" => "Usuario no encontrado.",
-                ], 401);
-            }
-        } catch (\Exception $err) {
-            return response()->json([
-                "message" => $err->getMessage(),
-                "error" => "Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.",
-            ], 500);
-        }
-    }
-
-    // public function logout(Request $request)
-    // {
-    //     $request->user()->currentAccessToken()->delete();
-
-    //     return response()->json(['message' => 'Sesión cerrada correctamente']);
-    // }
-
-    // Métodos Bloqueo de cuenta
-    protected function handleFailedLogin($user)
-    {
-        $user->increment('failed_attempts');
-        $maxFailedAttempts = 5;
-
-        if ($user->failed_attempts >= $maxFailedAttempts) {
-            $user->delete();
-            //$user->update(['status' => false]);
-        }
-    }
-
-    protected function sendFailedLoginResponse($user)
-    {
-        $maxFailedAttempts = 5;
-
-        if ($user->failed_attempts >= $maxFailedAttempts) {
-            return response()->json([
-                "message" => "Su cuenta ha sido bloqueada debido a múltiples intentos fallidos de inicio de sesión. Comuníquese con el administrador.",
-            ], 429);
-        }
-
-        return response()->json([
-            "message" => "Contraseña incorrecta. Te quedan " . ($maxFailedAttempts - $user->failed_attempts) . " intentos antes de que tu cuenta sea bloqueada."
-        ], 401);
-    }
-
-    
-    
-    */
