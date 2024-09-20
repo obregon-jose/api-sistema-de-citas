@@ -14,21 +14,26 @@ class WelcomeEmail extends Mailable
     use Queueable, SerializesModels;
 
     public $user;
+    public $role;
+    public $password;
+
 
     /**
      * Create a new message instance.
      */
-    public function __construct($user)
+    public function __construct($user, $role, $password)
     {
         //
         $this->user = $user;
+        $this->role = $role;
+        $this->password = $password;
     }
     
     public function build()
     {
         return $this->view('emails.welcome')
                     ->subject('Bienvenido a nuestra aplicación')
-                    ->with(['user' => $this->user]);
+                    ->with(['user' => $this->user, 'role' => $this->role, 'role' => $this->password]);
     }
 
     /**
