@@ -4,13 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Role;
 use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Http\Middleware\CheckRole;
-use App\Models\Role;
-use Illuminate\Support\Facades\Log;
+
 class AuthController extends Controller
 {
     public function register(Request $request) 
@@ -99,10 +98,10 @@ class AuthController extends Controller
                     "message" => "Usuario no encontrado.",
                 ], 401);
             }
-        } catch (\Exception $err) {
+        } catch (\Exception $e) {
             return response()->json([
-                "message" => $err->getMessage(),
-                "error" => "Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.",
+                'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -114,10 +113,10 @@ class AuthController extends Controller
             return response()->json([
                 "message" => "Sesión cerrada con éxito",
             ], 200);
-        } catch (\Exception $err) {
+        } catch (\Exception $e) {
             return response()->json([
-                "message" => $err->getMessage(),
-                "error" => "Error al cerrar sesión",
+                'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

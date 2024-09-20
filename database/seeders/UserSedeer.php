@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Profile;
+use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Laravel\Passport\ClientRepository as PassportClientRepository;
 
 class UserSedeer extends Seeder
@@ -18,28 +18,23 @@ class UserSedeer extends Seeder
         $client = $clientRepository->createPersonalAccessClient(
             null, 'barbearía', 'http://your-callback-url'
         );
-        //
-        DB::table('users')->insert([
+        
+        // Crear el usuario root
+        $rootUser = User::updateOrCreate(
+            ['email' => 'sc@sc.com'], 
             [
-                'name' => 'Admin',
-                'email' => 'a0@gmail.com',
-                'password' => bcrypt('12345678')
-            ],
-        ]);
+                'name' => 'Root SC',
+                'password' => bcrypt('12345678'), 
+            ]
+        );
 
-        DB::table('profiles')->insert([
+        // Crear el perfil para el usuario root
+        Profile::updateOrCreate(
+            ['user_id' => $rootUser->id],
             [
-                'user_id' => 1,
-                'role_id' => 1,
-            ],
-            [
-                'user_id' => 1,
-                'role_id' => 2,
-            ],
-            [
-                'user_id' => 1,
-                'role_id' => 3,
-            ],
-        ]);
+                'role_id' => 5, 
+                // 'status' => 'active'
+            ]
+        );
     }
 }
