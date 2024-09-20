@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Profile;
+use App\Mail\WelcomeEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -50,6 +52,9 @@ class AuthController extends Controller
             ]);
 
             $roleName = Role::find($defaultRoleId)->name;
+
+            // Enviar correo de bienvenida
+            Mail::to($user->email)->send(new WelcomeEmail($user));
 
             // Devolver respuesta
             return response()->json([
