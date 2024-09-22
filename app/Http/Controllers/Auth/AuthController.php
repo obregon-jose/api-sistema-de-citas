@@ -102,7 +102,7 @@ class AuthController extends Controller
                     ], 200);
                 } else {
                     return response()->json([
-                        "message" => "Contraseña incorrecta"
+                        "message" => "Correo electrónico o contraseña incorrectos, por favor revise sus credenciales.",
                     ], 401);
                 }
                 
@@ -125,6 +125,20 @@ class AuthController extends Controller
             $request->user()->token()->revoke();
             return response()->json([
                 "message" => "Sesión cerrada con éxito",
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function profile(Request $request) 
+    {
+        try {
+            return response()->json([
+                "user" => $request->user(),
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

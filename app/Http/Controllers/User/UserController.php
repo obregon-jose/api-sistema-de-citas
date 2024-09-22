@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -42,6 +43,9 @@ class UserController extends Controller
     public function store(Request $request)
     {
         // FUNCION EN AUTHCONTROLLER
+        $authController = new AuthController();
+        $registerUser = $authController->register($request);
+        return $registerUser;
     }
 
     /**
@@ -103,6 +107,7 @@ class UserController extends Controller
         //
         try {
             $user = User::findOrFail($id);
+            
             $user->delete(); //se debe es actualizar el estado del perfil
             // $user->update(['status' => false]);
 

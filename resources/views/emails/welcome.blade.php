@@ -58,13 +58,15 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>¡Bienvenido a NOMBRE_APP!</h1>
+            <h1>¡Bienvenido a {{ env('APP_NAME') }}!</h1>
         </div>
         <div class="content">
             <h2>Hola, {{ $user->name }}!</h2>
+            @if ($role != 'root')
+            <p>Estamos emocionados de que te unas a nuestra comunidad de {{ env('APP_NAME') }}, 
+                donde la experiencia de reserva de turnos es más fácil y divertida.</p> 
+            @endif
 
-            <p>Estamos emocionados de que te unas a nuestra comunidad de NOMBRE_APP, 
-                donde la experiencia de reserva de turnos es más fácil y divertida.</p>
             <br>
             @if ($role == 'cliente')
             <div class="content-item">
@@ -77,40 +79,39 @@
             <div class="content-item">
                 <p>¡Bienvenido al equipo de NOMBRE_BARBERÍA! Tu talento y dedicación son 
                     clave para ofrecer a nuestros clientes el mejor servicio.</p>
-
-                <p class="left-align">Tu correo: {{ $user->email }}</p>
-                <p class="left-align">Contraseña: {{ $password }}</p>
-                <p class="left-align">Te sugerimos cambiar esta contraseña después de tu primer inicio de sesión.</p>
             </div>
             @elseif ($role == 'root')
             <div class="content-item">
-                <p>El sistema se ha lanzado y está en línea. Ahora puedes comenzar a gestionar 
+                <p>El sistema de {{ env('APP_NAME') }} se ha lanzado y está en línea. Ahora puedes comenzar a gestionar 
                     todas las operaciones y asegurarte de que todo funcione sin problemas.</p>
-
-                <p class="left-align">Tu correo: {{ $user->email }}</p>
-                <p class="left-align">Contraseña: {{ $password }}</p>
-                <p class="left-align">Te sugerimos cambiar esta contraseña después de tu primer inicio de sesión.</p>
             </div>
 
             @else
             <div class="content-item">
-                <p>¡Bienvenido! Estamos encantados de que formes parte de nuestra comunidad en NOMBRE_APP. 
+                <p>¡Bienvenido! Estamos encantados de que formes parte de nuestra comunidad en {{ env('APP_NAME') }}. 
                     ¡Explora y descubre todo lo que tenemos para ofrecerte!</p>
+            </div>
+            @endif
 
-                <p class="left-align">Tu correo: {{ $user->email }}</p>
+            @if ($role != 'cliente')
+            <div class="content-item">
+                <p class="left-align">Para comenzar, inicia sesión en tu cuenta con las siguientes credenciales:</p>
+                <p class="left-align">Correo: {{ $user->email }}</p>
                 <p class="left-align">Contraseña: {{ $password }}</p>
                 <p class="left-align">Te sugerimos cambiar esta contraseña después de tu primer inicio de sesión.</p>
             </div>
             @endif
+            
+            <br>
             <div class="content-item">
-                <br>
-                <p>Si tienes alguna pregunta, no dudes en contactarnos.</p>
+                
+                <!-- <p>Si tienes alguna pregunta, no dudes en contactarnos.</p> -->
                 <p>¡Que tengas un gran día!</p>
             </div>
         </div>
         
         <div class="footer">
-            <p>Gracias por elegir NOMBRE_APP.</p>
+            <p>Gracias por elegir {{ env('APP_NAME') }}.</p>
             <p>Este es un mensaje automático, por favor no respondas.</p>
         </div>
     </div>
