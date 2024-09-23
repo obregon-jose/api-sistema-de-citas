@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bienvenido a NOMBRE_APP</title>
+    <title>Bienvenido a {{ env('APP_NAME') }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -72,12 +72,12 @@
             <div class="content-item">
                 <p>¡Gracias por registrarte! Ahora puedes reservar tus turnos 
                     con solo un clic y disfrutar de un servicio excepcional. ¡Te esperamos 
-                    en NOMBRE_BARBERÍA para cuidar de tu estilo!</p>
+                    en {{ env('BARBERSHOP_NAME') }} para cuidar de tu estilo!</p>
             </div>
 
             @elseif ($role == 'peluquero')
             <div class="content-item">
-                <p>¡Bienvenido al equipo de NOMBRE_BARBERÍA! Tu talento y dedicación son 
+                <p>¡Bienvenido al equipo de {{ env('BARBERSHOP_NAME') }}! Tu talento y dedicación son 
                     clave para ofrecer a nuestros clientes el mejor servicio.</p>
             </div>
             @elseif ($role == 'root')

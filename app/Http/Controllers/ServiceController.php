@@ -79,8 +79,6 @@ class ServiceController extends Controller
                 
             ]);
 
-
-            
             $service->update($validatedService);
 
             return response()->json([
@@ -109,8 +107,8 @@ class ServiceController extends Controller
             ], 200);
         } catch (\Exception $err) {
             return response()->json([
-                'message' => $err->getMessage(),
-                'error' => 'Error al inactivar el servicio.',
+                'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',
+                'error' => $err->getMessage(),
             ], 500);
         }
     }
