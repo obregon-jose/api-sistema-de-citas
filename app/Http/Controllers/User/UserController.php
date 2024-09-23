@@ -7,10 +7,23 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 
+
 class UserController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * @OA\Get(
+     *     path="/api/users",
+     *     summary="Obtener lista de usuarios",
+     *     tags={"Usuarios"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de usuarios",
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="No autorizado"
+     *     )
+     * )
      */
     public function index()
     {
@@ -48,9 +61,7 @@ class UserController extends Controller
         return $registerUser;
     }
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show($id)
     {
         //

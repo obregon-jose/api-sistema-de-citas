@@ -8,10 +8,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceController;
 
 // RUTAS PUBLICAS (No requieren autenticación) -> limitar intentos de registro y login con middleware 'throttle' indicando los intentos permitidos,tiempo 
-Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:2,1');
+Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
 Route::post('/users', [UserController::class, 'store']); //ESTA EN AUTHCONTROLLER-reutilizando
 // Route::post('/login', [AuthController::class, 'login']);
-Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
 
 
 // Grupo de rutas que solo requieren autenticación (Todos los roles)

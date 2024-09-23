@@ -1,0 +1,36 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API de Sistema de Citas",
+        "description": "Documentación de la API REST para la gestión de citas/reservas en un sistema de peluquería",
+        "contact": {
+            "email": "jo46646@gmail.com"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/users": {
+            "get": {
+                "tags": [
+                    "Usuarios"
+                ],
+                "summary": "Obtener lista de usuarios",
+                "operationId": "a5c2f85f763142435e660e6d2fa26c42",
+                "responses": {
+                    "200": {
+                        "description": "Lista de usuarios"
+                    },
+                    "401": {
+                        "description": "No autorizado"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Usuarios",
+            "description": "Usuarios"
+        }
+    ]
+}
