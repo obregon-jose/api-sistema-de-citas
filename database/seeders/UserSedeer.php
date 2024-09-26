@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Mail\WelcomeEmail;
 use App\Models\Profile;
 use App\Models\User;
-use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\RandomGeneratorController as RandomPasswordGenerator;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Passport\ClientRepository as PassportClientRepository;
@@ -21,13 +21,14 @@ class UserSedeer extends Seeder
         $client = $clientRepository->createPersonalAccessClient(
             null, 'barbearía', 'http://your-callback-url'
         );
-        $authController = new AuthController();
-        $passwordGenerado = $authController->generateRandomPassword();
+
+        $GeneratorController = new RandomPasswordGenerator();
+        $passwordGenerado = $GeneratorController->generateRandomPassword();
         // Crear el usuario root
         $rootUser = User::updateOrCreate(
             ['email' => 'obregonjose812@gmail.com'], 
             [
-                'name' => 'Root SC',
+                'name' => 'JOSE OBREGON',
                 'password' => bcrypt($passwordGenerado), 
             ]
         );

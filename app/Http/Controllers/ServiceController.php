@@ -7,7 +7,27 @@ use Illuminate\Http\Request;
 class ServiceController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * @OA\Get(
+     *     path="/api/services",
+     *     summary="Listar todos los servicios",
+     *     description="Obtiene una lista de todos los servicios",
+     *     tags={"Service"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de servicios obtenida con éxito",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="services", type="array", @OA\Items(type="object"))
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error inesperado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde."),
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     )
+     * )
      */
     public function index()
     {
@@ -19,7 +39,39 @@ class ServiceController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @OA\Post(
+     *     path="/api/services",
+     *     summary="Crear un nuevo servicio",
+     *     description="Registra un nuevo servicio en el sistema",
+     *     tags={"Service"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name"},
+     *             @OA\Property(property="name", type="string", example="Corte de cabello", description="Nombre del servicio"),
+     *             @OA\Property(property="price", type="integer", example=1500, description="Precio del servicio (opcional)"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Servicio creado con éxito",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Servicio creado con éxito."),
+     *             @OA\Property(property="service", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Error de validación",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde."),
+     *             @OA\Property(property="error", type="object",
+     *                 @OA\Property(property="name", type="array", @OA\Items(type="string", example="El campo nombre es obligatorio.")),
+     *                 @OA\Property(property="price", type="array", @OA\Items(type="string", example="El precio debe ser un número entero."))
+     *             )
+     *         )
+     *     )
+     * )
      */
     public function store(Request $request)
     {
@@ -47,7 +99,33 @@ class ServiceController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * @OA\Get(
+     *     path="/api/services/{id}",
+     *     summary="Obtener un servicio por ID",
+     *     description="Obtiene la información de un servicio específico",
+     *     tags={"Service"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Servicio encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="service", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Servicio no encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Servicio no encontrado."),
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     )
+     * )
      */
     public function show($id)
     {
@@ -66,7 +144,52 @@ class ServiceController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * @OA\Put(
+     *     path="/api/services/{id}",
+     *     summary="Actualizar un servicio",
+     *     description="Actualiza la información de un servicio existente",
+     *     tags={"Service"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="name", type="string", example="Corte de cabello", description="Nombre del servicio"),
+     *             @OA\Property(property="price", type="integer", example=1500, description="Nuevo precio del servicio (opcional)"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Servicio actualizado exitosamente",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Servicio actualizado exitosamente."),
+     *             @OA\Property(property="service", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Servicio no encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Servicio no encontrado."),
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Error de validación",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde."),
+     *             @OA\Property(property="error", type="object",
+     *                 @OA\Property(property="name", type="array", @OA\Items(type="string", example="El campo nombre es obligatorio.")),
+     *                 @OA\Property(property="price", type="array", @OA\Items(type="string", example="El precio debe ser un número entero."))
+     *             )
+     *         )
+     *     )
+     * )
      */
     public function update(Request $request, $id)
     {
@@ -94,7 +217,33 @@ class ServiceController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @OA\Delete(
+     *     path="/api/services/{id}",
+     *     summary="Eliminar un servicio",
+     *     description="Elimina un servicio del sistema",
+     *     tags={"Service"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Servicio eliminado exitosamente",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="El servicio ha pasado a estar inactivo.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Servicio no encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Servicio no encontrado."),
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     )
+     * )
      */
     public function destroy($id)
     {

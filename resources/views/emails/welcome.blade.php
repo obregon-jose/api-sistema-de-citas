@@ -57,9 +57,12 @@
 
 <body>
     <div class="container">
+        @if ($role != 'root')
         <div class="header">
             <h1>¡Bienvenido a {{ env('APP_NAME') }}!</h1>
         </div>
+        @endif
+        
         <div class="content">
             <h2>Hola, {{ $user->name }}!</h2>
             @if ($role != 'root')
@@ -82,7 +85,7 @@
             </div>
             @elseif ($role == 'root')
             <div class="content-item">
-                <p>El sistema de {{ env('APP_NAME') }} se ha lanzado y está en línea. Ahora puedes comenzar a gestionar 
+                <p>El sistema de {{ env('APP_NAME') }} se ha lanzado bajo la empresa {{ env('BARBERSHOP_NAME') }} y está en línea. Ahora puedes comenzar a gestionar 
                     todas las operaciones y asegurarte de que todo funcione sin problemas.</p>
             </div>
 
@@ -104,14 +107,15 @@
             
             <br>
             <div class="content-item">
-                
                 <!-- <p>Si tienes alguna pregunta, no dudes en contactarnos.</p> -->
                 <p>¡Que tengas un gran día!</p>
             </div>
         </div>
         
         <div class="footer">
+            @if ($role != 'root')
             <p>Gracias por elegir {{ env('APP_NAME') }}.</p>
+            @endif
             <p>Este es un mensaje automático, por favor no respondas.</p>
         </div>
     </div>

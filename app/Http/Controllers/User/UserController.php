@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -13,15 +13,23 @@ class UserController extends Controller
     /**
      * @OA\Get(
      *     path="/api/users",
-     *     summary="Obtener lista de usuarios",
-     *     tags={"Usuarios"},
+     *     summary="Listar todos los usuarios",
+     *     description="Obtiene una lista de todos los usuarios activos",
+     *     tags={"User"},
      *     @OA\Response(
      *         response=200,
-     *         description="Lista de usuarios",
+     *         description="Lista de usuarios obtenida con éxito",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="users", type="array", @OA\Items(type="object"))
+     *         )
      *     ),
      *     @OA\Response(
-     *         response=401,
-     *         description="No autorizado"
+     *         response=500,
+     *         description="Error inesperado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde."),
+     *             @OA\Property(property="error", type="string")
+     *         )
      *     )
      * )
      */
@@ -51,17 +59,82 @@ class UserController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @OA\Post(
+     *     path="/api/users",
+     *     summary="Crear un nuevo usuario",
+     *     description="Registra un nuevo usuario en el sistema",
+     *     tags={"User"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name", "email", "password"},
+     *             @OA\Property(property="name", type="string", example="John Doe", description="Nombre del usuario"),
+     *             @OA\Property(property="email", type="string", format="email", example="johndoe@example.com", description="Correo electrónico del usuario"),
+     *             @OA\Property(property="password", type="string", format="password", example="Password123!", description="Contraseña del usuario. Debe contener al menos una letra minúscula, una mayúscula y un número."),
+     *             @OA\Property(property="role_id", type="integer", example=2, nullable=true, description="ID del rol del usuario (opcional)"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Usuario registrado con éxito",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Usuario registrado con éxito"),
+     *             @OA\Property(property="user", type="object"),
+     *             @OA\Property(property="role", type="string", example="admin")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Error de validación",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde."),
+     *             @OA\Property(property="error", type="object",
+     *                 @OA\Property(property="name", type="array", @OA\Items(type="string", example="El campo nombre es obligatorio.")),
+     *                 @OA\Property(property="email", type="array", @OA\Items(type="string", example="El campo correo electrónico es obligatorio.")),
+     *                 @OA\Property(property="password", type="array", @OA\Items(type="string", example="El campo contraseña debe contener al menos una letra mayúscula.")),
+     *                 @OA\Property(property="role_id", type="array", @OA\Items(type="string", example="El rol seleccionado no es válido."))
+     *             )
+     *         )
+     *     )
+     * )
      */
     public function store(Request $request)
     {
         // FUNCION EN AUTHCONTROLLER
-        $authController = new AuthController();
+        $authController = new RegisterController();
         $registerUser = $authController->register($request);
         return $registerUser;
     }
 
-
+    /**
+     * @OA\Get(
+     *     path="/api/users/{id}",
+     *     summary="Obtener un usuario por ID",
+     *     description="Obtiene la información de un usuario específico",
+     *     tags={"User"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Usuario encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="user", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Usuario no encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde."),
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function show($id)
     {
         //
@@ -79,7 +152,54 @@ class UserController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * @OA\Put(
+     *     path="/api/users/{id}",
+     *     summary="Actualizar un usuario",
+     *     description="Actualiza la información de un usuario existente",
+     *     tags={"User"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="name", type="string", example="Jane Doe", description="Nombre del usuario"),
+     *             @OA\Property(property="email", type="string", format="email", example="janedoe@example.com", description="Correo electrónico del usuario"),
+     *             @OA\Property(property="password", type="string", format="password", example="NewPassword123!", description="Nueva contraseña del usuario (opcional)"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Usuario actualizado exitosamente",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Usuario actualizado exitosamente."),
+     *             @OA\Property(property="user", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Usuario no encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde."),
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Error de validación",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde."),
+     *             @OA\Property(property="error", type="object",
+     *                 @OA\Property(property="name", type="array", @OA\Items(type="string", example="El campo nombre es obligatorio.")),
+     *                 @OA\Property(property="email", type="array", @OA\Items(type="string", example="El campo correo electrónico es obligatorio.")),
+     *                 @OA\Property(property="password", type="array", @OA\Items(type="string", example="El campo contraseña debe contener al menos una letra mayúscula."))
+     *             )
+     *         )
+     *     )
+     * )
      */
     public function update(Request $request, $id)
     {
@@ -111,7 +231,33 @@ class UserController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @OA\Delete(
+     *     path="/api/users/{id}",
+     *     summary="Eliminar un usuario",
+     *     description="Elimina un usuario del sistema",
+     *     tags={"User"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Usuario eliminado exitosamente",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="El usuario ha pasado a estar inactivo.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Usuario no encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde."),
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     )
+     * )
      */
     public function destroy($id)
     {

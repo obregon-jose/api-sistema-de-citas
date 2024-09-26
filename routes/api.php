@@ -1,6 +1,9 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\Auth\ProfileController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Middleware\CheckRole;
 use Illuminate\Http\Request;
@@ -8,16 +11,20 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceController;
 
 // RUTAS PUBLICAS (No requieren autenticación) -> limitar intentos de registro y login con middleware 'throttle' indicando los intentos permitidos,tiempo 
-Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
+Route::post('/register', [RegisterController::class, 'register'])->middleware('throttle:5,1');
 Route::post('/users', [UserController::class, 'store']); //ESTA EN AUTHCONTROLLER-reutilizando
 // Route::post('/login', [AuthController::class, 'login']);
-Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
+Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:10,1');
 
+// Perfil del usuario autenticado
+Route::middleware('auth:api')->get('/user', function (Request $request) {
+    return $request->user();
+});
 
 // Grupo de rutas que solo requieren autenticación (Todos los roles)
 Route::group(['middleware' => ['auth:api']], function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::post('/profile', [AuthController::class, 'profile']);
+    Route::post('/logout', [LogoutController::class, 'logout']);
+    //Route::post('/profile', [ProfileController::class, 'profile']); //esto debe der crup de profile
     
     // rutas usuarios
     Route::get('/users/{id}', [UserController::class, 'show']);
