@@ -17,14 +17,5 @@ class RandomGeneratorController extends Controller
         return $randomPassword;
     }
 
-    //Generar códigos aleatorios
-    public function generateRandomCode($length = 6) {
-        $characters = implode('', range('0', '9'));
-        $charactersLength = strlen($characters);
-        $randomCode = '';
-        for ($i = 0; $i < $length; $i++) {
-            $randomCode .= $characters[rand(0, $charactersLength - 1)];
-        }
-        return $randomCode;
-    }
+    //
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\User\UserController;
@@ -10,7 +11,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceController;
 
-// RUTAS PUBLICAS (No requieren autenticación) -> limitar intentos de registro y login con middleware 'throttle' indicando los intentos permitidos,tiempo 
+// RUTAS PUBLICAS (No requieren autenticación)
+Route::post('password/reset', [PasswordResetController::class, 'sendResetCode']);
+Route::post('password/reset/verify', [PasswordResetController::class, 'verifyResetCode']);
+Route::post('password/reset/update', [PasswordResetController::class, 'updatePassword']);
+// limitar intentos de registro y login con middleware 'throttle' indicando los intentos permitidos,tiempo 
 Route::post('/register', [RegisterController::class, 'register'])->middleware('throttle:5,1');
 Route::post('/users', [UserController::class, 'store']); //ESTA EN AUTHCONTROLLER-reutilizando
 // Route::post('/login', [AuthController::class, 'login']);
@@ -18,7 +23,7 @@ Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:1
 
 // Perfil del usuario autenticado
 Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+    return $request->user()->with('profiles.role')->get();
 });
 
 // Grupo de rutas que solo requieren autenticación (Todos los roles)

@@ -9,33 +9,29 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class WelcomeEmail extends Mailable
+class ResetPasswordMail extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $user;
-    public $role;
-    public $password;
-
+    public $code;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($user, $role, $password)
+    public function __construct($user, $code)
     {
         //
         $this->user = $user;
-        $this->role = $role;
-        $this->password = $password;
+        $this->code = $code;
     }
-    
+
     public function build()
     {
         return $this->with(
             [
-                'user' => $this->user, 
-                'role' => $this->role, 
-                'password' => $this->password,
+                'user' => $this->user,
+                'code' => $this->code
             ]);
     }
 
@@ -45,7 +41,8 @@ class WelcomeEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Bienvenido!',
+            // subject: 'Correo de Restablecimiento de Contraseña',
+            subject: 'Tu Código de Restablecimiento de Contraseña',
         );
     }
 
@@ -55,7 +52,7 @@ class WelcomeEmail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.welcome',
+            view: 'emails.reset_password',
         );
     }
 
