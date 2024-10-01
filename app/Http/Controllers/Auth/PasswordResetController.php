@@ -11,14 +11,46 @@ use Illuminate\Support\Facades\Mail;
 
 class PasswordResetController extends Controller
 {
-    //// 1. Enviar código de restablecimiento
+    /**
+     * @OA\Post(
+     *     path="/api/password/send-reset-code",
+     *     summary="Enviar código de restablecimiento",
+     *    description="Enviar un código de verificación al correo electrónico del usuario",
+     *     tags={"Auth"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email"},
+     *             @OA\Property(property="email", type="string", format="email", example="user@example.com")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Código de verificación enviado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Hemos enviado un código de verificación a tu correo electrónico, por favor revisa tu bandeja de entrada.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Correo no encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="No hemos encentrado una cuanta asociada a este correo, por favor verifica el correo ingresado.")
+     *         )
+     *     )
+     * )
+     */
     public function sendResetCode(Request $request)
     {
-        $request->validate(['email' => 'required|email']);
+        $request->validate([
+            'email' => 'required|email'
+        ]);
         
         $user = User::where('email', $request->email)->first();
         if (!$user) {
-            return response()->json(['message' => 'Usuario no encontrado'], 404);
+            return response()->json([
+                'message' => 'No hemos encentrado una cuanta asociada a este correo, por favor verifica el correo ingresado.'
+            ], 404);
         }
 
         $code = rand(100000, 999999);
@@ -33,10 +65,44 @@ class PasswordResetController extends Controller
         // Enviar el correo con el código
         Mail::to($request->email)->send(new ResetPasswordMail($user, $code));
 
-        return response()->json(['message' => 'Código de restablecimiento enviado']);
+        return response()->json([
+            'message' => 'Hemos enviado un código de verificación a tu correo electrónico, por favor revisa tu bandeja de entrada.'
+        ]);
     }
 
-    // 2. Verificar código de restablecimiento
+    /**
+    * @OA\Post(
+    *     path="/api/verify-reset-code",
+    *     summary="Verificar código de restablecimiento",
+    *     description="Verificar si el código de restablecimiento es válido",
+    *     tags={"Auth"},
+    *     @OA\RequestBody(
+    *         required=true,
+    *         @OA\JsonContent(
+    *             required={"email", "token"},
+    *             @OA\Property(property="email", type="string", format="email", example="user@example.com"),
+    *             @OA\Property(property="token", type="string", example="123456")
+    *         )
+    *     ),
+    *     @OA\Response(
+    *         response=200,
+    *         description="Código verificado",
+    *         @OA\JsonContent(
+    *             @OA\Property(property="status", type="boolean", example=true),
+    *             @OA\Property(property="message", type="string", example="Código verificado"),
+    *             @OA\Property(property="email", type="string", format="email", example="user@example.com")
+    *         )
+    *     ),
+    *     @OA\Response(
+    *         response=400,
+    *         description="Código inválido",
+    *         @OA\JsonContent(
+    *             @OA\Property(property="status", type="boolean", example=false),
+    *             @OA\Property(property="message", type="string", example="El código ingresado en invalido")
+    *         )
+    *     )
+    * )
+    */
     public function verifyResetCode(Request $request)
     {
         $request->validate([
@@ -50,13 +116,43 @@ class PasswordResetController extends Controller
             ->first();
 
         if (!$record) {
-            return response()->json(['message' => 'Código inválido'], 400);
+            return response()->json([
+                'status' => false,
+                'message' => 'El código ingresado en invalido'
+            ], 400);
         }
 
-        return response()->json(['message' => 'Código verificado', 'email' => $request->email]);
+        return response()->json([
+            'status' => true,
+            'message' => 'Código verificado', 
+            'email' => $request->email
+        ]);
     }
 
-    // 3. Actualizar la contraseña
+    /**
+     * @OA\Post(
+     *     path="/api/password/reset/update",
+     *     summary="Actualizar la contraseña",
+     *     description="Actualizar la contraseña de un usuario",
+     *     tags={"Auth"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email", "password", "password_confirmation"},
+     *             @OA\Property(property="email", type="string", format="email", example="user@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="NewPassword123"),
+     *             @OA\Property(property="password_confirmation", type="string", format="password", example="NewPassword123")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Contraseña actualizada",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Su contraseña se a actualizado con éxito.")
+     *         )
+     *     )
+     * )
+     */
     public function updatePassword(Request $request)
     {
         $request->validate([
@@ -76,6 +172,8 @@ class PasswordResetController extends Controller
         // Eliminar el token usado
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
-        return response()->json(['message' => 'Contraseña actualizada con éxito']);
+        return response()->json([
+            'message' => 'Su contraseña se a actualizado con éxito.'
+        ]);
     }
 }

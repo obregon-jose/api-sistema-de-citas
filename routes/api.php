@@ -12,8 +12,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceController;
 
 // RUTAS PUBLICAS (No requieren autenticación)
-Route::post('password/reset', [PasswordResetController::class, 'sendResetCode']);
-Route::post('password/reset/verify', [PasswordResetController::class, 'verifyResetCode']);
+Route::post('password/send-reset-code', [PasswordResetController::class, 'sendResetCode']);
+Route::post('password/verify-reset-code', [PasswordResetController::class, 'verifyResetCode']);
 Route::post('password/reset/update', [PasswordResetController::class, 'updatePassword']);
 // limitar intentos de registro y login con middleware 'throttle' indicando los intentos permitidos,tiempo 
 Route::post('/register', [RegisterController::class, 'register'])->middleware('throttle:5,1');
