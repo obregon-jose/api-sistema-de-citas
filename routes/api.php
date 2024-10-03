@@ -11,6 +11,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceController;
 
+Route::get('/', function () {
+    echo "hola, bienvenido a la api";
+});
+
 // RUTAS PUBLICAS (No requieren autenticación)
 Route::post('password/send-reset-code', [PasswordResetController::class, 'sendResetCode']);
 Route::post('password/verify-reset-code', [PasswordResetController::class, 'verifyResetCode']);
