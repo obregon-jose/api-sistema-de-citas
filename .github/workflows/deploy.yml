@@ -22,20 +22,8 @@ jobs:
         port: 22
         script: |
           cd /var/www/barberia1/public # Cambia a la ruta de tu proyecto en el servidor
-          if [ ! -d ".git" ]; then
-            echo "Not a git repository"
-            exit 1
-          fi
           git pull origin main # Trae los últimos cambios del repositorio
-          if [ ! -f "composer.json" ]; then
-            echo "composer.json not found"
-            exit 1
-          fi
           composer install --no-interaction --prefer-dist --optimize-autoloader # Instala las dependencias
-          if [ ! -f "artisan" ]; then
-            echo "artisan file not found"
-            exit 1
-          fi
           php artisan migrate --force # Ejecuta las migraciones
           php artisan cache:clear # Limpia caches
           php artisan config:clear
@@ -44,38 +32,3 @@ jobs:
           php artisan config:cache # Genera nuevamente caches
           php artisan route:cache
           php artisan view:cache
-
-# name: Deploy to Server
-
-# on:
-#   push:
-#     branches:
-#       - main # Despliegue cuando se haga push a la rama main
-
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#     - name: Checkout code
-#       uses: actions/checkout@v2
-
-#     - name: Deploy to Server
-#       uses: appleboy/ssh-action@master
-#       with:
-#         host: ${{ secrets.SSH_HOST }}
-#         username: ${{ secrets.SSH_USER }}
-#         key: ${{ secrets.SSH_PRIVATE_KEY }}
-#         port: 22
-#         script: |
-#           cd /var/www/barberia1/public # Cambia a la ruta de tu proyecto en el servidor
-#           git pull origin main # Trae los últimos cambios del repositorio
-#           composer install --no-interaction --prefer-dist --optimize-autoloader # Instala las dependencias
-#           php artisan migrate --force # Ejecuta las migraciones
-#           php artisan cache:clear # Limpia caches
-#           php artisan config:clear
-#           php artisan route:clear
-#           php artisan view:clear
-#           php artisan config:cache # Genera nuevamente caches
-#           php artisan route:cache
-#           php artisan view:cache
