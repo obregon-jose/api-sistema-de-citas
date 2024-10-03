@@ -21,14 +21,14 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22
         script: |
-          cd /var/www/barberia1/public # Cambia a la ruta de tu proyecto en el servidor
-          git pull origin main # Trae los últimos cambios del repositorio
-          composer install --no-interaction --prefer-dist --optimize-autoloader # Instala las dependencias
-          php artisan migrate --force # Ejecuta las migraciones
-          php artisan cache:clear # Limpia caches
+          cd /var/www/barberia1/public
+          git pull origin main
+          composer install --no-interaction --prefer-dist --optimize-autoloader
+          php artisan migrate --force
+          php artisan cache:clear
           php artisan config:clear
           php artisan route:clear
           php artisan view:clear
-          php artisan config:cache # Genera nuevamente caches
+          php artisan config:cache
           php artisan route:cache
           php artisan view:cache
