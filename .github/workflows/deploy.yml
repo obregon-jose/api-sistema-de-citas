@@ -1,34 +1,36 @@
-name: Deploy to Server
+name: Deploy to Hostinger  # Nombre del flujo de trabajo
 
+# Indica que el flujo de trabajo se ejecutará en cada push a la rama main
 on:
   push:
     branches:
-      - main # Despliegue cuando se haga push a la rama main
+      - main  # Cambia "main" si tu rama principal tiene otro nombre (por ejemplo, "master")
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # El flujo de trabajo se ejecutará en una máquina virtual de Ubuntu
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    - name: Checkout code  # Paso 1: Clonar el repositorio
+      uses: actions/checkout@v2  # Utiliza la acción predefinida para clonar el código
 
-    - name: Deploy to Server
-      uses: appleboy/ssh-action@master
+    - name: Set up SSH agent  # Paso 2: Configurar el agente SSH
+      uses: webfactory/ssh-agent@v0.5.4  # Usa una acción que permite el uso de SSH
       with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: 22
-        script: |
-          cd /var/www/barberia1/public
-          git pull origin main
-          composer install --no-interaction --prefer-dist --optimize-autoloader
-          php artisan migrate --force
-          php artisan cache:clear
-          php artisan config:clear
-          php artisan route:clear
-          php artisan view:clear
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # Clave SSH almacenada en GitHub Secrets (NO CAMBIAR)
+
+    - name: Add known hosts  # Paso 3: Agregar hosts conocidos
+      run: |
+        mkdir -p ~/.ssh  # Crea el directorio SSH si no existe
+        echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts  # Agrega los hosts conocidos a la configuración SSH
+
+    - name: Sync files to server  # Paso 4: Sincronizar los archivos al servidor
+      run: |
+        rsync -avz --exclude="vendor" --exclude=".env" --exclude="storage" --exclude=".git" . ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_PATH }}
+      # IMPORTANTE: No necesitas cambiar esta línea si los secretos SSH_USER, SSH_HOST y SSH_PATH están correctamente configurados.
+
+    - name: Install dependencies and optimize  # Paso 5: Instalar dependencias y optimizar
+      run: |
+        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.SSH_PATH }} && composer install --no-interaction --prefer-dist --optimize-autoloader && php artisan config:cache && php artisan route:cache && php artisan view:cache"
+      # Este comando ejecuta en el servidor remoto la instalación de Composer y la optimización de caché.
+      # NO CAMBIAR, a menos que tengas otros comandos que necesites ejecutar en el servidor.
