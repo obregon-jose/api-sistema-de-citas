@@ -11,7 +11,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceController;
 
+
+Route::get('/',function(){
+    echo "Hola,bienvenido a la api";
+});
+
 // RUTAS PUBLICAS (No requieren autenticación)
+
+
 Route::post('password/send-reset-code', [PasswordResetController::class, 'sendResetCode']);
 Route::post('password/verify-reset-code', [PasswordResetController::class, 'verifyResetCode']);
 Route::post('password/reset/update', [PasswordResetController::class, 'updatePassword']);
@@ -19,17 +26,20 @@ Route::post('password/reset/update', [PasswordResetController::class, 'updatePas
 Route::post('/register', [RegisterController::class, 'register'])->middleware('throttle:5,1');
 Route::post('/users', [UserController::class, 'store']); //ESTA EN AUTHCONTROLLER-reutilizando
 // Route::post('/login', [AuthController::class, 'login']);
+
 Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:10,1');
 
 // Perfil del usuario autenticado
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user()->with('profiles.role')->get();
-});
+
+Route::get('/user', function (Request $request) {
+    $user = $request->user()->load('profiles.role');
+    return $user;
+})->middleware('auth:api');
 
 // Grupo de rutas que solo requieren autenticación (Todos los roles)
 Route::group(['middleware' => ['auth:api']], function () {
     Route::post('/logout', [LogoutController::class, 'logout']);
-    //Route::post('/profile', [ProfileController::class, 'profile']); //esto debe der crup de profile
+    
     
     // rutas usuarios
     Route::get('/users/{id}', [UserController::class, 'show']);
