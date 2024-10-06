@@ -215,7 +215,7 @@ class UserController extends Controller
             if ($request->filled('password')) {
                 $validatedUser['password'] = bcrypt($validatedUser['password']);
             }
-            
+
             $user->update($validatedUser);
 
             return response()->json([
