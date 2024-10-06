@@ -17,8 +17,8 @@ class RegisterController extends Controller
     /**
      * @OA\Post(
      *     path="/api/register",
-     *     summary="Registrar un nuevo usuario",
-     *     description="Registra un nuevo usuario en el sistema",
+     *     summary="Registrar un nuevo usuario con un rol específico",
+     *     description="Registra un nuevo usuario en el sistema con un rol específico",
      *     tags={"Auth"},
      *     @OA\RequestBody(
      *         required=true,
@@ -57,53 +57,49 @@ class RegisterController extends Controller
      public function register(Request $request) 
     {
         $GeneratorController = new RandomPasswordGenerator();
+
         try {
-            // Validar la solicitud
+            
             $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|unique:users,email',
-                'password' => 'required|min:8|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/',
-                'role_id' => 'nullable|exists:roles,id',
+                //'password' => 'required|min:8|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/', se genera automática
+                'role_id' => 'required|exists:roles,id',
                 // 'status' => 'nullable|boolean',
+
             ]);
 
             // Verificar si hay un usuario autenticado
-            $token = $request->bearerToken();
-            $authenticatedUser = $token ? Auth::guard('api')->user() : null;
+            $authenticatedUser = Auth::user();
             
-            $defaultRoleId = 1;
             if ($authenticatedUser) {
-                // Verificar si el usuario autenticado tiene el rol de 'root'
+                // Verificar si el usuario autenticado tiene permiso para registrar usuarios con el rol seleccionado
                 //NOTA: el error em profile es porque no esta detectando la función pero funciona normal el código
                 if ($authenticatedUser->profiles()->whereHas('role', function($query) {
                     $query->where('name', 'root');
                 })->exists()) {
-                    $defaultRoleId = $validatedData['role_id'] ?? $defaultRoleId;
                     $passwordGenerado = $GeneratorController->generateRandomPassword();
                     $validatedData['password'] = $passwordGenerado;
                 }
             }
 
-            // Encriptar la contraseña
             $validatedData['password'] = bcrypt($validatedData['password']);
 
             // Crear el usuario
             $user = User::create($validatedData);
-            
             Profile::create([
                 'user_id' => $user->id,
-                'role_id' => $defaultRoleId,
+                'role_id' => $validatedData['role_id'],
             ]);
 
-            $roleName = Role::find($defaultRoleId)->name;
+            $roleName = Role::find($validatedData['role_id'])->name;
             
             // Enviar correo de bienvenida
-            Mail::to($user->email)->send(new WelcomeEmail($user, $roleName, $passwordGenerado ?? ''));
+            Mail::to($user->email)->send(new WelcomeEmail($user, $roleName, $passwordGenerado));
             
             // Devolver respuesta
             return response()->json([
-                
-                'message' => 'Usuario registrado con éxito',
+                'message' => $roleName . ' registrado con éxito.',
                 'user' => $user,
                 'role' => $roleName,
             ], 201);
