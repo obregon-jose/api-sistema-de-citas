@@ -10,6 +10,8 @@ class UserDetail extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'user_id';
+
     protected $fillable = [
         'user_id',
         'nickname',
@@ -18,6 +20,7 @@ class UserDetail extends Model
         'note'
     ];
 
+    // Relación uno a uno inversa con la tabla de usuarios
     public function user()
     {
         return $this->belongsTo(User::class);

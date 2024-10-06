@@ -3,19 +3,19 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\PasswordResetController;
-use App\Http\Controllers\Auth\ProfileController;
-use App\Http\Controllers\UserDetailController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\User\UserDetailController;
+use App\Http\Controllers\User\UserProfileController;
 use App\Http\Middleware\CheckRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceController;
 
+
 Route::get('/', function () {
     echo "Hola, bienvenido al API";
 });
-
 
 // RUTAS PUBLICAS (No requieren autenticación)
 Route::post('password/send-reset-code', [PasswordResetController::class, 'sendResetCode']);
@@ -45,9 +45,15 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::get('/services',[ServiceController::class,'index']);
 
     //rutas detalles de usuario
-    Route::get('/user-details/{user_id}', [UserDetailController::class, 'show']);
+    // Route::get('/user-details', [UserDetailController::class, 'index']); //NO, se obtiene desde users
+    // Route::post('/user-details', [UserDetailController::class, 'store']); //NO, se crea desde users
+    // Route::get('/user-details/{id}', [UserDetailController::class, 'show']); //NO, se obtiene desde users
+    Route::put('/user-details/{id}', [UserDetailController::class, 'update']);
+    //Route::delete('/user-details/{id}', [UserDetailController::class, 'destroy']); //NO, eliminación en cascada desde users
 
 });
+
+
 
 // Grupo de rutas que requieren el rol 'root'
 Route::group(['middleware' => ['auth:api', CheckRole::class . ':root']], function () {
@@ -55,15 +61,14 @@ Route::group(['middleware' => ['auth:api', CheckRole::class . ':root']], functio
     
     Route::get('/users', [UserController::class, 'index']); //solo con permisos
     Route::delete('/users/{id}', [UserController::class, 'destroy']); // revisar
-    Route::delete('/user-details/{id}', [UserDetailController::class, 'destroy']); // Eliminar un detalle
+
+    
 });
 
 // Grupo de rutas que requieren el rol 'cliente' ++root
 Route::group(['middleware' => ['auth:api', CheckRole::class . ':root,cliente']], function () {
     
-    //Rutas detalles del usuario
-    Route::post('/user-details', [UserDetailController::class, 'store']);
-    Route::put('/user-details/{userDetail}', [UserDetailController::class, 'update']);
+    
 });
 
 // Grupo de rutas que requieren el rol 'peluquero' ++root
@@ -73,9 +78,6 @@ Route::group(['middleware' => ['auth:api', CheckRole::class . ':root,peluquero']
     Route::post('/services',[ServiceController::class,'store']);
     Route::put('/services/{id}',[ServiceController::class,'update']);
     Route::delete('/services/{id}',[ServiceController::class,'destroy']);
-
-    Route::get('/user-details', [UserDetailController::class, 'index']);
-
 
 });
 

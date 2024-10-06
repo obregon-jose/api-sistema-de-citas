@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\User;
 
+use App\Http\Controllers\Controller;
 use App\Models\UserDetail;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class UserDetailController extends Controller
 {
-    /**
+/**
  * @OA\Get(
  *     path="/user-details",
  *     tags={"UserDetails"},
@@ -86,22 +87,22 @@ class UserDetailController extends Controller
             $validatedData = $request->validate([
                 'user_id' => 'required|exists:users,id',
                 'nickname' => 'nullable|string|max:255',
-                'phone' => 'nullable|string|max:15',
-                'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'phone' => 'nullable|string|min:8|max:10',
+                'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', //revisar
                 'note' => 'nullable|string',
             ]);
 
-            $userDetail = userDetail::create($validatedData); // Crea un nuevo detalle de usuario
+            $userDetail = userDetail::create($validatedData);
 
             return response()->json([
                 'message' => 'Detalle de usuario creado con éxito.',
                 'userDetail' => $userDetail,
-            ], 201); // Respuesta JSON con código 201
+            ], 201); 
         } catch (\Exception $err) {
             return response()->json([
-                'message' => 'Ha ocurrido un error estupido. Por favor, inténtalo nuevamente más tarde.',
+                'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',
                 'error' => $err->getMessage(),
-            ], 400); // Respuesta JSON de error con código 400
+            ], 400); 
         }
     }
 
@@ -153,24 +154,19 @@ class UserDetailController extends Controller
  * )
  */
 
-    public function show($user_id)
+    public function show($user_id) //se debe mandar el id del detalla del usuario
     {
         try {
-
-            $userDetail = UserDetail::findOrFail($user_id);
+            $userDetail = UserDetail::where('user_id', $user_id)->firstOrFail();
             return response()->json([
                 'userDetail' => $userDetail,
             ], 200);
-        } catch (ModelNotFoundException $err) {
-            return response()->json([
-                'message' => 'Detalles del usuario no encontrado.',
-                'error' => $err->getMessage(),
-            ], 404);
+        
         } catch (\Exception $err) {
             return response()->json([
                 'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',
                 'error' => $err->getMessage(),
-            ], 500); // Código 500 para errores internos
+            ], 500); 
         }
     }
 
@@ -225,20 +221,22 @@ class UserDetailController extends Controller
  * )
  */
 
-    public function update(Request $request, UserDetail $userDetail)
+    public function update(Request $request, $user_id)
     {
         try {
+            $userDetail = UserDetail::where('user_id', $user_id)->firstOrFail();
 
             $validatedDetail = $request->validate([
                 'nickname' => 'nullable|string|max:255',
-                'phone' => 'nullable|string|max:10',
+                'phone' => 'nullable|string|min:8|max:10',
                 'photo' => 'nullable|string|max:255',
                 'note' => 'nullable|string',
             ]);
 
             $userDetail->update($validatedDetail); // Actualiza el detalle de usuario
+
             return response()->json([
-                'message' => 'Detalle de usuario actualizado con éxito.',
+                'message' => 'Perfil actualizado con éxito.',
                 'userDetail' => $userDetail,
             ], 200); // Respuesta JSON con el detalle actualizado
         } catch (\Exception $err) {
@@ -286,10 +284,10 @@ class UserDetailController extends Controller
  * )
  */
 
-    public function destroy($id)
+    public function destroy($user_id)
     {
         try {
-            $userDetail = UserDetail::findOrFail($id);
+            $userDetail = UserDetail::where('user_id', $user_id)->firstOrFail();
             $userDetail->delete();
             return response()->json([
                 'message' => 'Los detalles han pasado a estar inactivo.',

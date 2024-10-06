@@ -19,6 +19,12 @@ class User extends Authenticatable
         return $this->hasMany(Profile::class);
     }
 
+    // Relación uno a uno con la tabla de detalles
+    public function detail()
+    {
+        return $this->hasOne(UserDetail::class);
+    }
+
     /**
      * The attributes that are mass assignable.
      *
