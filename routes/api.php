@@ -3,7 +3,6 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\PasswordResetController;
-use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Middleware\CheckRole;
@@ -11,26 +10,20 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceController;
 
-
 Route::get('/',function(){
     echo "Hola,bienvenido a la api";
 });
 
 // RUTAS PUBLICAS (No requieren autenticación)
-
-
 Route::post('password/send-reset-code', [PasswordResetController::class, 'sendResetCode']);
 Route::post('password/verify-reset-code', [PasswordResetController::class, 'verifyResetCode']);
 Route::post('password/reset/update', [PasswordResetController::class, 'updatePassword']);
-// limitar intentos de registro y login con middleware 'throttle' indicando los intentos permitidos,tiempo 
-Route::post('/register', [RegisterController::class, 'register'])->middleware('throttle:5,1');
-Route::post('/users', [UserController::class, 'store']); //ESTA EN AUTHCONTROLLER-reutilizando
-// Route::post('/login', [AuthController::class, 'login']);
 
+// limitar intentos de registro y login con middleware 'throttle' indicando los intentos permitidos,tiempo 
+Route::post('/users', [UserController::class, 'store'])->middleware('throttle:5,1'); // se registra como cliente
 Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:10,1');
 
 // Perfil del usuario autenticado
-
 Route::get('/user', function (Request $request) {
     $user = $request->user()->load('profiles.role');
     return $user;
@@ -38,8 +31,8 @@ Route::get('/user', function (Request $request) {
 
 // Grupo de rutas que solo requieren autenticación (Todos los roles)
 Route::group(['middleware' => ['auth:api']], function () {
+    Route::post('/register', [RegisterController::class, 'register'])->middleware('throttle:5,1'); // puede seleccionar rol
     Route::post('/logout', [LogoutController::class, 'logout']);
-    
     
     // rutas usuarios
     Route::get('/users/{id}', [UserController::class, 'show']);

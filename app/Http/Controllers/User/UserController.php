@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Controller;
+use App\Mail\WelcomeEmail;
+use App\Models\Profile;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
@@ -100,10 +102,48 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        // FUNCION EN AUTHCONTROLLER
-        $authController = new RegisterController();
-        $registerUser = $authController->register($request);
-        return $registerUser;
+        try {
+            $defaultRoleId = 1;
+            
+            $validatedData = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|unique:users,email',
+                'password' => 'required|min:8|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/',
+                //'role_id' => 'nullable|exists:roles,id', //predefinido
+                // 'status' => 'nullable|boolean',
+
+                //PENDIENTE DATOS DE LA TABLA DETALLES
+            ]);
+
+            
+            $validatedData['password'] = bcrypt($validatedData['password']);
+
+            // Crear el usuario
+            $user = User::create($validatedData);
+            // Crear el perfil del usuario
+            Profile::create([
+                'user_id' => $user->id,
+                'role_id' => $defaultRoleId,
+            ]);
+
+            $roleName = Role::find($defaultRoleId)->name;
+            
+            // Enviar correo de bienvenida
+            Mail::to($user->email)->send(new WelcomeEmail($user, $roleName, $passwordGenerado ?? ''));
+            
+            // Devolver respuesta
+            return response()->json([
+                'message' => 'Su cuenta se ha registrado con éxito.',
+                'user' => $user,
+                'role' => $roleName,
+            ], 201);
+ 
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',
+                'error' => $e->getMessage(),
+            ], 400);
+        }
     }
 
     /**
