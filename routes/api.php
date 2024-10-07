@@ -27,7 +27,7 @@ Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:1
 
 // Perfil del usuario autenticado
 Route::get('/user', function (Request $request) {
-    $user = $request->user()->load('profiles.role');
+    $user = $request->user()->load(['profiles.role', 'detail']);
     return $user;
 })->middleware('auth:api');
 

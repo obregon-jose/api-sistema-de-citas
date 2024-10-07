@@ -7,6 +7,7 @@ use App\Mail\WelcomeEmail;
 use App\Models\Profile;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\UserDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -106,15 +107,21 @@ class UserController extends Controller
             $defaultRoleId = 1;
             
             $validatedData = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|email|unique:users,email',
-                'password' => 'required|min:8|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/',
-                //'role_id' => 'nullable|exists:roles,id', //predefinido
-                // 'status' => 'nullable|boolean',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email',
+            'password' => 'required|min:8|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/',
+            //'role_id' => 'nullable|exists:roles,id', //predefinido
+            // 'status' => 'nullable|boolean',
 
-                //PENDIENTE DATOS DE LA TABLA DETALLES
+            //PENDIENTE DATOS DE LA TABLA DETALLES
             ]);
 
+            // Verificar si el correo ya está registrado
+            if (User::where('email', $validatedData['email'])->exists()) {
+            return response()->json([
+                'message' => 'Ya existe una cuenta con el correo electrónico ingresado.',
+            ], 400);
+            }
             
             $validatedData['password'] = bcrypt($validatedData['password']);
 
@@ -125,6 +132,12 @@ class UserController extends Controller
                 'user_id' => $user->id,
                 'role_id' => $defaultRoleId,
             ]);
+            // Crear el detalle del usuario
+            UserDetail::create([
+                'user_id' => $user->id,
+                //'photo' => 'https://ui-avatars.com/api/?name=' . $user->name . '&color=7F9CF5&background=EBF4FF',
+                //revisar el modo de foto
+            ]);
 
             $roleName = Role::find($defaultRoleId)->name;
             
@@ -133,11 +146,11 @@ class UserController extends Controller
             
             // Devolver respuesta
             return response()->json([
-                'message' => 'Su cuenta se ha registrado con éxito.',
-                'user' => $user,
-                'role' => $roleName,
+            'message' => 'Su cuenta se ha registrado con éxito.',
+            'user' => $user,
+            'role' => $roleName,
             ], 201);
- 
+     
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',

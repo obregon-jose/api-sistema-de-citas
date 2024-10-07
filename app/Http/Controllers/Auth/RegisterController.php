@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\Profile;
 use App\Mail\WelcomeEmail;
+use App\Models\UserDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -54,42 +55,52 @@ class RegisterController extends Controller
      *     )
      * )
      */
-     public function register(Request $request) 
+    public function register(Request $request) 
     {
         $GeneratorController = new RandomPasswordGenerator();
-
         try {
             
             $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
-                'email' => 'required|string|email|unique:users,email',
-                //'password' => 'required|min:8|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/', se genera automática
+                'email' => 'required|string|email',
+                'password' => 'sometimes|min:8|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/', //se genera automática
                 'role_id' => 'required|exists:roles,id',
                 // 'status' => 'nullable|boolean',
 
             ]);
-
-            // Verificar si hay un usuario autenticado
-            $authenticatedUser = Auth::user();
-            
-            if ($authenticatedUser) {
-                // Verificar si el usuario autenticado tiene permiso para registrar usuarios con el rol seleccionado
-                //NOTA: el error em profile es porque no esta detectando la función pero funciona normal el código
-                if ($authenticatedUser->profiles()->whereHas('role', function($query) {
-                    $query->where('name', 'root');
-                })->exists()) {
-                    $passwordGenerado = $GeneratorController->generateRandomPassword();
-                    $validatedData['password'] = $passwordGenerado;
-                }
+            // Verificar si el correo ya está registrado
+            if (User::where('email', $validatedData['email'])->exists()) {
+                return response()->json([
+                    'message' => 'Ya existe un usuario registrado con el correo electrónico proporcionado.',
+                ], 400);
             }
 
-            $validatedData['password'] = bcrypt($validatedData['password']);
+            // Verificar si hay un usuario autenticado
+            // $authenticatedUser = Auth::user();
+            
+            // if ($authenticatedUser) {
+            //     // Verificar si el usuario autenticado tiene permiso para registrar usuarios con el rol seleccionado
+            //     //NOTA: el error em profile es porque no esta detectando la función pero funciona normal el código
+            //     if ($authenticatedUser->profiles()->whereHas('role', function($query) {
+            //         $query->where('name', 'cliente');
+            //     })->exists()) {
+                    
+            //     }
+            // }
+
+            $passwordGenerado = $GeneratorController->generateRandomPassword();
+            $validatedData['password'] = bcrypt($passwordGenerado);
 
             // Crear el usuario
             $user = User::create($validatedData);
             Profile::create([
                 'user_id' => $user->id,
                 'role_id' => $validatedData['role_id'],
+            ]);
+            UserDetail::create([
+                'user_id' => $user->id,
+                //'photo' => 'https://ui-avatars.com/api/?name=' . $user->name . '&color=7F9CF5&background=EBF4FF',
+                //revisar el modo de foto
             ]);
 
             $roleName = Role::find($validatedData['role_id'])->name;
