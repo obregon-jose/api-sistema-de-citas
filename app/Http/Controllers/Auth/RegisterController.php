@@ -59,11 +59,12 @@ class RegisterController extends Controller
     {
         $GeneratorController = new RandomPasswordGenerator();
         try {
-            
+            $passwordGenerado = $GeneratorController->generateRandomPassword();
+
             $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email',
-                'password' => 'sometimes|min:8|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/', //se genera automática
+                'password' => 'sometimes', //se genera automática
                 'role_id' => 'required|exists:roles,id',
                 // 'status' => 'nullable|boolean',
 
@@ -75,20 +76,6 @@ class RegisterController extends Controller
                 ], 400);
             }
 
-            // Verificar si hay un usuario autenticado
-            // $authenticatedUser = Auth::user();
-            
-            // if ($authenticatedUser) {
-            //     // Verificar si el usuario autenticado tiene permiso para registrar usuarios con el rol seleccionado
-            //     //NOTA: el error em profile es porque no esta detectando la función pero funciona normal el código
-            //     if ($authenticatedUser->profiles()->whereHas('role', function($query) {
-            //         $query->where('name', 'cliente');
-            //     })->exists()) {
-                    
-            //     }
-            // }
-
-            $passwordGenerado = $GeneratorController->generateRandomPassword();
             $validatedData['password'] = bcrypt($passwordGenerado);
 
             // Crear el usuario

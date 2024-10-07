@@ -33,7 +33,7 @@ Route::get('/user', function (Request $request) {
 
 // Grupo de rutas que solo requieren autenticación (Todos los roles)
 Route::group(['middleware' => ['auth:api']], function () {
-    Route::post('/register', [RegisterController::class, 'register'])->middleware('throttle:5,1'); // puede seleccionar rol
+    
     Route::post('/logout', [LogoutController::class, 'logout']);
     
     // rutas usuarios
@@ -60,18 +60,18 @@ Route::group(['middleware' => ['auth:api', CheckRole::class . ':root']], functio
     
     Route::get('/users', [UserController::class, 'index']); //solo con permisos
     Route::delete('/users/{id}', [UserController::class, 'destroy']); // revisar
-
+    Route::post('/register', [RegisterController::class, 'register'])->middleware('throttle:5,1');  //puede seleccionar rol
     
 });
 
-// Grupo de rutas que requieren el rol 'cliente' ++root
-Route::group(['middleware' => ['auth:api', CheckRole::class . ':root,cliente']], function () {
-    
+// Grupo de rutas que requieren el rol 'cliente'
+Route::group(['middleware' => ['auth:api', CheckRole::class . ':cliente']], function () {
+    Route::post('/register', [RegisterController::class, 'register'])->middleware('throttle:5,1'); // puede seleccionar rol
     
 });
 
 // Grupo de rutas que requieren el rol 'peluquero' ++root
-Route::group(['middleware' => ['auth:api', CheckRole::class . ':root,peluquero']], function () {
+Route::group(['middleware' => ['auth:api', CheckRole::class . ':peluquero']], function () {
     // rutas servicios
     Route::get('/services/{id}',[ServiceController::class,'show']); 
     Route::post('/services',[ServiceController::class,'store']);
@@ -81,10 +81,10 @@ Route::group(['middleware' => ['auth:api', CheckRole::class . ':root,peluquero']
 });
 
 // ADICIONALES
-Route::group(['middleware' => ['auth:api', CheckRole::class . ':root,administrador']], function () {
+Route::group(['middleware' => ['auth:api', CheckRole::class . ':administrador']], function () {
     
 });
 
-Route::group(['middleware' => ['auth:api', CheckRole::class . ':root,dueño']], function () {
+Route::group(['middleware' => ['auth:api', CheckRole::class . ':dueño']], function () {
     
 });
