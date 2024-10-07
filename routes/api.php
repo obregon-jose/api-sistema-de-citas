@@ -66,7 +66,7 @@ Route::group(['middleware' => ['auth:api', CheckRole::class . ':root']], functio
 
 // Grupo de rutas que requieren el rol 'cliente'
 Route::group(['middleware' => ['auth:api', CheckRole::class . ':cliente']], function () {
-    Route::post('/register', [RegisterController::class, 'register'])->middleware('throttle:5,1'); // puede seleccionar rol
+    
     
 });
 
