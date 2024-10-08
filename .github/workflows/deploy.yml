@@ -31,7 +31,9 @@ jobs:
 
     - name: Install dependencies and optimize  # Paso 5: Instalar dependencias y optimizar
       run: |
-        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.SSH_PATH }} && composer install --no-interaction --prefer-dist --optimize-autoloader && php artisan config:cache && php artisan route:cache && php artisan view:cache"
+        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.SSH_PATH }} 
+        && composer install --no-interaction --prefer-dist --optimize-autoloader" 
+        
       # Este comando ejecuta en el servidor remoto la instalación de Composer y la optimización de caché.
       # NO CAMBIAR, a menos que tengas otros comandos que necesites ejecutar en el servidor.
-#d
+#f
