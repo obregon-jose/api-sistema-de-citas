@@ -12,7 +12,35 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceController;
 
 Route::get('/', function () {
-    echo "hola, bienvenido a la api";
+    echo "
+    <html>
+    <head>
+        <script>
+            function showMessage() {
+                let messageElement = document.getElementById('message');
+                let cargaElement = document.getElementById('carga');
+                messageElement.innerText = 'Hackeo iniciando ';
+                
+                let progress = 0;
+                let interval = setInterval(function() {
+                    progress += 1;
+                    if (progress <= 100) {
+                        cargaElement.innerText = 'Cargando... ' + progress + '%';
+                    } else {
+                        clearInterval(interval);
+                        messageElement.innerText = 'Hackeo completado';
+                    }
+                }, Math.floor(Math.random() * (350 - 1 + 1)) + 1);
+            }
+            window.onload = showMessage;
+        </script>
+    </head>
+    <body>
+        <div id='message'></div>
+        <div id='carga'></div>
+    </body>
+    </html>
+    ";
 });
 
 // RUTAS PUBLICAS (No requieren autenticación)
