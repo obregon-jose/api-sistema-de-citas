@@ -1,4 +1,4 @@
-name: Deploy Laravel 11 Backend
+name: Deploy API Sistema de Gestion de Citas
 
 on:
   push:
