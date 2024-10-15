@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('services', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->integer('price')->nullable();
+            $table->integer('price');
             $table->timestamps();
         });
     }
