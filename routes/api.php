@@ -6,11 +6,13 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\UserDetailController;
+use App\Http\Controllers\TimeSlotController;
 use App\Http\Controllers\User\UserProfileController;
 use App\Http\Middleware\CheckRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceController;
+use App\Models\TimeSlot;
 
 Route::get('/', function () {
     echo "
@@ -43,6 +45,24 @@ Route::get('/', function () {
     </html>
     ";
 });
+
+
+//Obtener las franjas por el barbero
+Route::get('/barber/{profileId}/agendas', [TimeSlotController::class, 'obtenerAgendasPorBarbero']);
+
+// Crear una nueva agenda para el peluquero
+Route::post('/agendas/{profileId}', [TimeSlotController::class, 'store']);
+
+Route::group(['prefix' => 'agenda/{agendaId}'], function () {
+    // Generar franjas horarias para una semana específica dentro de una agenda
+    Route::post('/franjas', [TimeSlotController::class, 'generarFranjaSemana']);
+    // Obtener todas las semanas y sus franjas horarias asociadas
+    Route::get('/semanas', [TimeSlotController::class, 'obtenerSemanas']);
+    // Obtener las franjas horarias de una semana específica con la fecha
+    Route::get('/agendas/{agendaId}/semanas', [TimeSlotController::class, 'obtenerSemanasPorFecha']); //se hace el query de esta forma: agendas/{agendaId}/semanas?fecha_inicio=2024-10-16
+});
+
+
 
 // RUTAS PUBLICAS (No requieren autenticación)
 Route::group(['prefix' => '/',], function () {
@@ -90,6 +110,9 @@ Route::group(['middleware' => ['auth:api']], function () {
         Route::post('/services',[ServiceController::class,'store']);
         Route::put('/services/{id}',[ServiceController::class,'update']);
         Route::delete('/services/{id}',[ServiceController::class,'destroy']);
+
+        //rutas horarios
+        Route::get('/{profileId}/agendas', [TimeSlotController::class, 'obtenerAgendasPorBarbero']);
 
     });
     // Requieren el rol 'administrador'

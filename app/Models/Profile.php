@@ -22,4 +22,10 @@ class Profile extends Model
     {
         return $this->belongsTo(Role::class);
     }
+
+    //relacion con la agendas
+    public function agendas()
+    {
+        return $this->hasMany(Agenda::class);
+    }
 }
