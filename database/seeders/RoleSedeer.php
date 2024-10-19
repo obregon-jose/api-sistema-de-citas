@@ -13,28 +13,29 @@ class RoleSedeer extends Seeder
     public function run(): void
     {
         //
-        DB::table('roles')->insert([
-            [
-                'name' => 'cliente',
-            ],
-            [
-                'name' => 'peluquero',
-            ],
-            [
-                'name' => 'administrador',
-            ],
-            [
-                'name' => 'dueño',
-            ],
-            [
-                'name' => 'root',
-            ],
-        ]);
+        // DB::table('roles')->insert([
+        //     [
+        //         'name' => 'cliente',
+        //     ],
+        //     [
+        //         'name' => 'peluquero',
+        //     ],
+        //     [
+        //         'name' => 'administrador',
+        //     ],
+        //     [
+        //         'name' => 'dueño',
+        //     ],
+        //     [
+        //         'name' => 'root',
+        //     ],
+        // ]);
         // seeder prueba 
         DB::table('services')->insert([
             [
                 'name' => 'wolfcut',
-            ]
+                
+            ],
         ]);
     }
 }
