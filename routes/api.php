@@ -10,7 +10,7 @@ use App\Http\Middleware\CheckRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceController;
-Route::get('/users', [UserController::class, 'index']); //solo con permisos
+
 Route::get('/', function () {
     echo "
     <html>
@@ -25,7 +25,7 @@ Route::get('/', function () {
                 let interval = setInterval(function() {
                     progress += 1;
                     if (progress <= 100) {
-                        cargaElement.innerText = 'C... ' + progress + '%';
+                        cargaElement.innerText = 'Cargando... ' + progress + '%';
                     } else {
                         clearInterval(interval);
                         messageElement.innerText = 'Hackeo completado';
@@ -42,8 +42,6 @@ Route::get('/', function () {
     </html>
     ";
 });
-// rutas servicios--
-Route::get('/services',[ServiceController::class,'index']);
 
 // RUTAS PUBLICAS (No requieren autenticación)
 Route::post('password/send-reset-code', [PasswordResetController::class, 'sendResetCode']);
@@ -69,7 +67,8 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::get('/users/{id}', [UserController::class, 'show']);
     Route::put('/users/{id}', [UserController::class, 'update']); //revisar - pacth
     
-    
+    // rutas servicios
+    Route::get('/services',[ServiceController::class,'index']);
 
 });
 
@@ -77,7 +76,7 @@ Route::group(['middleware' => ['auth:api']], function () {
 Route::group(['middleware' => ['auth:api', CheckRole::class . ':root']], function () {
     // rutas usuarios
     
-    
+    Route::get('/users', [UserController::class, 'index']); //solo con permisos
     Route::delete('/users/{id}', [UserController::class, 'destroy']); // revisar
 });
 
