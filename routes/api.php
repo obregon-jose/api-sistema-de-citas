@@ -42,7 +42,7 @@ Route::get('/', function () {
     </html>
     ";
 });
-// rutas servicios
+// rutas servicios-
 Route::get('/services',[ServiceController::class,'index']);
 
 // RUTAS PUBLICAS (No requieren autenticación)
