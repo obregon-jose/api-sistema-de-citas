@@ -13,7 +13,7 @@ class RoleSedeer extends Seeder
     public function run(): void
     {
         //
-        DB::table('roles')->insert([
+        /* DB::table('roles')->insert([
             [
                 'name' => 'cliente',
             ],
@@ -29,6 +29,6 @@ class RoleSedeer extends Seeder
             [
                 'name' => 'root',
             ],
-        ]);
+        ]); */
     }
 }
