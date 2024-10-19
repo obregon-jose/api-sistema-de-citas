@@ -39,4 +39,5 @@ jobs:
         # ssh $SSH_USER@$SSH_HOST << 'EOF'
           
           # php artisan migrate
+          # php artisan db:seed --class=RestauranteSeeder
         # EOF 
