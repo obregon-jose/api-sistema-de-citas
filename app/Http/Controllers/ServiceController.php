@@ -79,11 +79,10 @@ class ServiceController extends Controller
         try {
             $validatedData = $request->validate([
                 "name" => "required|string|unique:services",
-                "price" => "nullable|integer"
+                "price" => "required|integer"
                 
             ]);
             
-
             $service = Service::create($validatedData);
 
             return response()->json([
@@ -199,7 +198,6 @@ class ServiceController extends Controller
             $validatedService = $request->validate([
                 'name' => 'nullable|string|max:100|unique:services,name,'.$service->id,
                 'price' => 'nullable|integer',
-                
             ]);
 
             $service->update($validatedService);
@@ -252,7 +250,7 @@ class ServiceController extends Controller
             $service = service::findOrFail($id);
             $service->delete();
             return response()->json([
-                'message' => 'El service ha pasado a estar inactivo.',
+                'message' => 'El service ha pasado a estar inactivo.', //esto esta eliminando de verdad verdad
             ], 200);
         } catch (\Exception $err) {
             return response()->json([

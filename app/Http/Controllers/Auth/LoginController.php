@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -59,15 +60,18 @@ class LoginController extends Controller
             $user = User::withTrashed()->where("email", $request->email)->first();
 
             if (!empty($user)) {
-                if ($user->trashed()) { //mostrar esto en caso de que se inactive una cuanta - solo casos especiales
+                if ($user->trashed()) { //mostrar esto en caso de que se inactive una cuenta - solo casos especiales
                     return response()->json([
-                        "message" => "Tenemos problemas para iniciar sesión con su cuanta, Comuníquese con el administrador.",
+                        "message" => "Tenemos problemas para iniciar sesión con su cuenta, Comuníquese con el administrador.",
                     ], 403);
                 }
                 if (Hash::check($request->password, $user->password)) {
                     $token = $user->createToken("token")->accessToken;
+                    $roleName = $user->profiles()->first()->role->name;
+                    
                     return response()->json([
                         "message" => "Login exitoso.",
+                        "role" => $roleName,
                         "user" => $user,
                         "token" => $token,
                         // "token_type" => "Bearer",
@@ -75,14 +79,14 @@ class LoginController extends Controller
                     ], 200);
                 } else {
                     return response()->json([
-                        "message" => "Correo electrónico o contraseña incorrectos, por favor revise sus credenciales.",
+                        "message" => "Correo electrónico o contraseña incorrectos, por favor revise los datos ingresados",
                     ], 401);
                 }
                 
             } else {
                 return response()->json([
                     // "message" => "No hemos encontrado un usuario registrado con este correo electrónico.",
-                    "message" => "Correo electrónico o contraseña incorrectos, por favor revise sus credenciales.",
+                    "message" => "Correo electrónico o contraseña incorrectos, por favor revise los datos ingresados.",
                 ], 401);
             }
         } catch (\Exception $e) {

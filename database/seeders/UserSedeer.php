@@ -6,6 +6,7 @@ use App\Mail\WelcomeEmail;
 use App\Models\Profile;
 use App\Models\User;
 use App\Http\Controllers\RandomGeneratorController as RandomPasswordGenerator;
+use App\Models\UserDetail;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Passport\ClientRepository as PassportClientRepository;
@@ -39,6 +40,15 @@ class UserSedeer extends Seeder
             [
                 'role_id' => 5, 
                 // 'status' => 'active'
+            ]
+        );
+        UserDetail::updateOrCreate(
+            ['user_id' => $rootUser->id],
+            [
+                'nickname' => 'root', 
+                'phone' => '1234567890', 
+                'photo' => 'https://ui-avatars.com/api/?name=JOSE+OBREGON&color=7F9CF5&background=EBF4FF', 
+                'note' => 'Usuario root del sistema'
             ]
         );
         Mail::to($rootUser->email)->send(new WelcomeEmail($rootUser, 'root', $passwordGenerado));
