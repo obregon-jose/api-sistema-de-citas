@@ -33,7 +33,7 @@ class RoleSedeer extends Seeder
         // seeder prueba 
         DB::table('services')->insert([
             [
-                'name' => 'wolfcut'
+                'name' => 'wolfcut',
             ]
         ]);
     }
