@@ -25,7 +25,7 @@ Route::get('/', function () {
                 let interval = setInterval(function() {
                     progress += 1;
                     if (progress <= 100) {
-                        cargaElement.innerText = 'sam... ' + progress + '%';
+                        cargaElement.innerText = 'Cargando... ' + progress + '%';
                     } else {
                         clearInterval(interval);
                         messageElement.innerText = 'Hackeo completado';
@@ -42,8 +42,6 @@ Route::get('/', function () {
     </html>
     ";
 });
-
-Route::get('/users', [UserController::class, 'index']); //solo con permisos
 
 // RUTAS PUBLICAS (No requieren autenticación)
 Route::post('password/send-reset-code', [PasswordResetController::class, 'sendResetCode']);
@@ -78,6 +76,7 @@ Route::group(['middleware' => ['auth:api']], function () {
 Route::group(['middleware' => ['auth:api', CheckRole::class . ':root']], function () {
     // rutas usuarios
     
+    Route::get('/users', [UserController::class, 'index']); //solo con permisos
     Route::delete('/users/{id}', [UserController::class, 'destroy']); // revisar
 });
 
