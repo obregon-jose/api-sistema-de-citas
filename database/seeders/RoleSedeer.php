@@ -30,5 +30,11 @@ class RoleSedeer extends Seeder
                 'name' => 'root',
             ],
         ]);
+        // seeder prueba 
+        DB::table('services')->insert([
+            [
+                'name' => 'wolfcut'
+            ]
+        ]);
     }
 }

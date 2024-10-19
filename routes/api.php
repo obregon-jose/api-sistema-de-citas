@@ -42,8 +42,8 @@ Route::get('/', function () {
     </html>
     ";
 });
-
-Route::post('/services',[ServiceController::class,'store']);
+// rutas servicios
+Route::get('/services',[ServiceController::class,'index']);
 
 // RUTAS PUBLICAS (No requieren autenticación)
 Route::post('password/send-reset-code', [PasswordResetController::class, 'sendResetCode']);
@@ -69,8 +69,7 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::get('/users/{id}', [UserController::class, 'show']);
     Route::put('/users/{id}', [UserController::class, 'update']); //revisar - pacth
     
-    // rutas servicios
-    Route::get('/services',[ServiceController::class,'index']);
+    
 
 });
 
@@ -91,6 +90,7 @@ Route::group(['middleware' => ['auth:api', CheckRole::class . ':root,cliente']],
 Route::group(['middleware' => ['auth:api', CheckRole::class . ':root,peluquero']], function () {
     // rutas servicios
     Route::get('/services/{id}',[ServiceController::class,'show']); 
+    Route::post('/services',[ServiceController::class,'store']);
     Route::put('/services/{id}',[ServiceController::class,'update']);
     Route::delete('/services/{id}',[ServiceController::class,'destroy']);
 
