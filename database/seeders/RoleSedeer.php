@@ -34,7 +34,8 @@ class RoleSedeer extends Seeder
         DB::table('services')->insert([
             [
                 'name' => 'wolfcut',
-                
+                'price' => 100,
+
             ],
         ]);
     }
