@@ -10,7 +10,7 @@ use App\Http\Middleware\CheckRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceController;
-
+Route::get('/users', [UserController::class, 'index']); //solo con permisos
 Route::get('/', function () {
     echo "
     <html>
@@ -77,7 +77,7 @@ Route::group(['middleware' => ['auth:api']], function () {
 Route::group(['middleware' => ['auth:api', CheckRole::class . ':root']], function () {
     // rutas usuarios
     
-    Route::get('/users', [UserController::class, 'index']); //solo con permisos
+    
     Route::delete('/users/{id}', [UserController::class, 'destroy']); // revisar
 });
 
