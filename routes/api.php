@@ -27,7 +27,7 @@ Route::get('/', function () {
                 let interval = setInterval(function() {
                     progress += 1;
                     if (progress <= 100) {
-                        cargaElement.innerText = 'Cargando... ' + progress + '%';
+                        cargaElement.innerText = 'nnnn... ' + progress + '%';
                     } else {
                         clearInterval(interval);
                         messageElement.innerText = 'Hackeo completado';
