@@ -7,17 +7,18 @@ use App\Models\Profile;
 use App\Models\User;
 use App\Http\Controllers\RandomGeneratorController as RandomPasswordGenerator;
 use App\Models\UserDetail;
-use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Passport\ClientRepository as PassportClientRepository;
+use Illuminate\Database\Seeder;
 
-class UserSedeer extends Seeder
+class UserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
+        //
         $clientRepository = new PassportClientRepository();
         $client = $clientRepository->createPersonalAccessClient(
             null, 'barbearía', 'http://your-callback-url'

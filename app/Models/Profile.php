@@ -22,4 +22,16 @@ class Profile extends Model
     {
         return $this->belongsTo(Role::class);
     }
+
+    // Relación con el reserva - Cliente id
+    public function reservation()
+    {
+        return $this->hasMany(Reservation::class);
+    }
+
+    // Relación con el AttentionQuote - Peluquero id
+    public function attention()
+    {
+        return $this->hasMany(AttentionQuote::class);
+    }
 }

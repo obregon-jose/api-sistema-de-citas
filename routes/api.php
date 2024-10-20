@@ -1,12 +1,13 @@
 <?php
 
+use App\Http\Controllers\AttentionQuoteController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\UserDetailController;
-use App\Http\Controllers\User\UserProfileController;
 use App\Http\Middleware\CheckRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -60,6 +61,7 @@ Route::group(['prefix' => '/',], function () {
 Route::get('/user', function (Request $request) {
     $user = $request->user()->load(['profiles.role', 'detail']);
     return $user;
+
 })->middleware('auth:api');
 
 Route::group(['middleware' => ['auth:api']], function () {
@@ -67,20 +69,22 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::post('/logout', [LogoutController::class, 'logout']);
     // usuarios
     Route::get('/users/{id}', [UserController::class, 'show']);
-    Route::put('/users/{id}', [UserController::class, 'update']); //revisar - pacth
+    // Route::put('/users/{id}', [UserController::class, 'update']); //revisar - se actualiza desde los detalles
+    // detalles de usuario
+    Route::put('/user-details/{id}', [UserDetailController::class, 'update']);
     // servicios
     Route::get('/services',[ServiceController::class,'index']);
-
-    // detalles de usuario
-    // Route::get('/user-details', [UserDetailController::class, 'index']); //NO, se obtiene desde users
-    // Route::post('/user-details', [UserDetailController::class, 'store']); //NO, se crea desde users
-    // Route::get('/user-details/{id}', [UserDetailController::class, 'show']); //NO, se obtiene desde users
-    Route::put('/user-details/{id}', [UserDetailController::class, 'update']);
-    //Route::delete('/user-details/{id}', [UserDetailController::class, 'destroy']); //NO, eliminación en cascada desde users
-
+    
+    
     /* ---------------- RUTAS CON ROLES --------------------*/
     // Requieren el rol 'cliente'
     Route::group(['middleware' => [ CheckRole::class . ':cliente']], function () {
+        // rutas reservas-cliente
+        Route::get('/reservations',[ReservationController::class,'index']);
+        // Route::get('/reservations/{id}',[ReservationController::class,'show']); //no
+        Route::post('/reservations',[ReservationController::class,'store']);
+        Route::put('/reservations/{id}',[ReservationController::class,'update']);
+        Route::delete('/reservations/{id}',[ReservationController::class,'destroy']);
         
     });
     // Requieren el rol 'peluquero'
@@ -90,6 +94,13 @@ Route::group(['middleware' => ['auth:api']], function () {
         Route::post('/services',[ServiceController::class,'store']);
         Route::put('/services/{id}',[ServiceController::class,'update']);
         Route::delete('/services/{id}',[ServiceController::class,'destroy']);
+        // rutas reservas-peluquero [atención]
+        Route::get('/attention-quotes',[AttentionQuoteController::class,'index']);
+        // Route::get('/attention-quotes/{id}',[AttentionQuoteController::class,'show']);
+        Route::post('/attention-quotes',[AttentionQuoteController::class,'store']);
+        Route::put('/attention-quotes/{id}',[AttentionQuoteController::class,'update']);
+        Route::delete('/attention-quotes/{id}',[AttentionQuoteController::class,'destroy']);
+
 
     });
     // Requieren el rol 'administrador'
