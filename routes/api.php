@@ -8,13 +8,10 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\UserDetailController;
-use App\Http\Controllers\User\UserProfileController;
-use App\Http\Controllers\RestauranteController;
 use App\Http\Middleware\CheckRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceController;
-use App\Models\Restaurante;
 
 Route::get('/', function () {
     echo "
@@ -47,45 +44,6 @@ Route::get('/', function () {
     </html>
     ";
 });
-
-
-Route::get('/pruebas', function () {
-    echo "
-    <html>
-    <head>
-        <script>
-            function showMessage() {
-                let messageElement = document.getElementById('message');
-                let cargaElement = document.getElementById('carga');
-                messageElement.innerText = 'prueba de hackeo ';
-                
-                let progress = 0;
-                let interval = setInterval(function() {
-                    progress += 1;
-                    if (progress <= 100) {
-                        cargaElement.innerText = 'nnnn... ' + progress + '%';
-                    } else {
-                        clearInterval(interval);
-                        messageElement.innerText = 'prueba de Hackeo completado';
-                    }
-                }, Math.floor(Math.random() * (350 - 1 + 1)) + 1);
-            }
-            window.onload = showMessage;
-        </script>
-    </head>
-    <body>
-        <div id='message'></div>
-        <div id='carga'></div>
-    </body>
-    </html>
-    ";
-});
-
-Route::get('/restaurantes/{id}',[RestauranteController::class,'show']); 
-Route::post('/restaurante',[RestauranteController::class,'store']);
-Route::put('/restaurantes/{id}',[RestauranteController::class,'update']);
-Route::delete('/restaurantes/{id}',[RestauranteController::class,'destroy']);
-Route::get('/restaurantes',[RestauranteController::class,'index']);
 
 // RUTAS PUBLICAS (No requieren autenticación)
 Route::group(['prefix' => '/',], function () {
