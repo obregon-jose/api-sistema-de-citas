@@ -44,7 +44,7 @@ class UserController extends Controller
             //$users = User::paginate(10);// Usar paginación en lugar de cargar todos los usuarios
 
             // Obtener solo los usuarios activos
-            $users = User::with('profiles.role')->get();
+            $users = User::with(['profiles.role', 'detail'])->get();
             // Obtener solo los usuarios eliminados-Inactivos
             // $deletedUsers = User::onlyTrashed()->get();
             // Obtener todos los usuarios, incluidos los eliminados
@@ -109,18 +109,18 @@ class UserController extends Controller
             $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email',
-            'password' => 'required|min:8|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/',
+            'password' => 'required|min:8|regex:/[a-z]/|regex:/[0-9]/',
+            'phone' => 'nullable|string|min:8|max:10'
             //'role_id' => 'nullable|exists:roles,id', //predefinido
             // 'status' => 'nullable|boolean',
 
-            //PENDIENTE DATOS DE LA TABLA DETALLES
             ]);
 
             // Verificar si el correo ya está registrado
             if (User::where('email', $validatedData['email'])->exists()) {
-            return response()->json([
-                'message' => 'Ya existe una cuenta con el correo electrónico ingresado.',
-            ], 400);
+                return response()->json([
+                    'message' => 'Ya existe una cuenta con el correo electrónico ingresado.',
+                ], 400);
             }
             
             $validatedData['password'] = bcrypt($validatedData['password']);
@@ -135,6 +135,7 @@ class UserController extends Controller
             // Crear el detalle del usuario
             UserDetail::create([
                 'user_id' => $user->id,
+                //'phone' => $validatedData['phone'],
                 //'photo' => 'https://ui-avatars.com/api/?name=' . $user->name . '&color=7F9CF5&background=EBF4FF',
                 //revisar el modo de foto
             ]);
@@ -146,9 +147,9 @@ class UserController extends Controller
             
             // Devolver respuesta
             return response()->json([
-            'message' => 'Su cuenta se ha registrado con éxito.',
-            'user' => $user,
-            'role' => $roleName,
+                'message' => 'Su cuenta se ha registrado con éxito.',
+                'user' => $user,
+                'role' => $roleName,
             ], 201);
      
         } catch (\Exception $e) {
@@ -192,7 +193,7 @@ class UserController extends Controller
     {
         //
         try {
-            $user = User::with('profiles.role')->findOrFail($id);
+            $user = User::with(['profiles.role', 'detail'])->findOrFail($id);
             return response()->json([
                 'user' => $user,
             ], 200);
@@ -262,7 +263,7 @@ class UserController extends Controller
             $validatedUser = $request->validate([
                 'name' => 'nullable|string|max:255',
                 'email' => 'nullable|email|unique:users,email,' . $user->id,
-                'password' => 'nullable|min:8|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/',
+                'password' => 'nullable|min:8|regex:/[a-z]/|regex:/[0-9]/',
             ]);
 
             if ($request->filled('password')) {

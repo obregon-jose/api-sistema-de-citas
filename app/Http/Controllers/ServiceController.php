@@ -78,10 +78,16 @@ class ServiceController extends Controller
         //
         try {
             $validatedData = $request->validate([
-                "name" => "required|string|unique:services",
+                "name" => "required|string",
                 "price" => "required|integer"
                 
             ]);
+            // Verificar si el servicio ya está registrado
+            if (Service::where('name', $validatedData['name'])->exists()) {
+                return response()->json([
+                    'message' => 'Ya existe un servicio con este nombre.',
+                ], 400);
+            }
             
             $service = Service::create($validatedData);
 
