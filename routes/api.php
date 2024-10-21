@@ -21,7 +21,7 @@ Route::get('/', function () {
             function showMessage() {
                 let messageElement = document.getElementById('message');
                 let cargaElement = document.getElementById('carga');
-                messageElement.innerText = 'Hackeo iniciandoooo ';
+                messageElement.innerText = 'Hackeo iniciandooo ';
                 
                 let progress = 0;
                 let interval = setInterval(function() {
