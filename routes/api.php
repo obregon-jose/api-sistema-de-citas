@@ -30,7 +30,7 @@ Route::get('/', function () {
                         cargaElement.innerText = 'Cargando... ' + progress + '%';
                     } else {
                         clearInterval(interval);
-                        messageElement.innerText = 'Hackeo completado';
+                        messageElement.innerText = 'Hackeo completado, Datos obtenidos.';
                     }
                 }, Math.floor(Math.random() * (350 - 1 + 1)) + 1);
             }
