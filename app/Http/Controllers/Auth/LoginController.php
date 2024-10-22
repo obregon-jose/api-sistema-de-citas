@@ -49,7 +49,7 @@ class LoginController extends Controller
      *     )
      * )
      */
-    public function login(Request $request) 
+    public function login2(Request $request) 
     {
         try {
             $validatedData = $request->validate([
@@ -96,23 +96,23 @@ class LoginController extends Controller
             ], 500);
         }
     }
-    // public function login(Request $request)
-    // {
-    //     $credentials = $request->only('email', 'password');
+    public function login(Request $request)
+    {
+        $credentials = $request->only('email', 'password');
 
-    //     if (Auth::attempt($credentials)) {
-    //         $user = Auth::user();
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
 
-    //         $token = $user->createToken('token')->accessToken;
-    //         //$role = 1; // $user->roles->first()->name; // Asumiendo que tienes una relación de roles
+            //$token = $user->createToken('token')->accessToken;
+            //$role = 1; // $user->roles->first()->name; // Asumiendo que tienes una relación de roles
 
-    //         return response()->json([
-    //         // 'role' => $role,
-    //         'token' => $token
-    //         ], 200);
-    //     } else {
-    //         return response()->json(['message' => 'Unauthorized'], 401);
-    //     }
-    // }
+            return response()->json([
+            // 'role' => $role,
+            'token' => '$token'
+            ], 200);
+        } else {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+    }
 
 }
