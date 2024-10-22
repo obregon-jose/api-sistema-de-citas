@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('service_details');
             $table->integer('total_paid');
             $table->enum('status', ['pending', 'completed', 'cancelled'])->default('pending'); 
-            $table->timestamps();
+            $table->timestamps(); //
         });
     }
 

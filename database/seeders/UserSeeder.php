@@ -42,7 +42,7 @@ class UserSeeder extends Seeder
                 'role_id' => 5, 
                 // 'status' => 'active'
             ]
-        );
+        ); //
         UserDetail::updateOrCreate(
             ['user_id' => $rootUser->id],
             [

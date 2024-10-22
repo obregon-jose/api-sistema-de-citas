@@ -29,7 +29,7 @@ class RoleSeeder extends Seeder
             ],
             [
                 'name' => 'root',
-            ],
+            ], //
         ]);
     }
 }
