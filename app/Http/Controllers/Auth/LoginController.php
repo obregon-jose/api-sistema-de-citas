@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -67,11 +66,11 @@ class LoginController extends Controller
                 }
                 if (Hash::check($request->password, $user->password)) {
                     $token = $user->createToken("token")->accessToken;
-                    $roleName = $user->profiles()->first()->role->name;
+                    // $roleName = $user->profiles()->first()->role->name;
                     
                     return response()->json([
                         // "message" => "Login exitoso.",
-                        "role" => $roleName,
+                        // "role" => $roleName,
                         // "user" => $user,
                         "token" => $token,
                         // "token_type" => "Bearer",
