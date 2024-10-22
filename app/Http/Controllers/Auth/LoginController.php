@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
@@ -69,10 +70,10 @@ class LoginController extends Controller
                     // $roleName = $user->profiles()->first()->role->name;
                     
                     return response()->json([
-                        // "message" => "Login exitoso.",
+                         "message" => "Login exitoso.",
                         // "role" => $roleName,
                         // "user" => $user,
-                        "token" => $token,
+                        // "token" => $token,
                         // "token_type" => "Bearer",
                         // "expires_at" => now()->addHours(1),
                     ], 200);
@@ -95,4 +96,23 @@ class LoginController extends Controller
             ], 500);
         }
     }
+    // public function login(Request $request)
+    // {
+    //     $credentials = $request->only('email', 'password');
+
+    //     if (Auth::attempt($credentials)) {
+    //         $user = Auth::user();
+
+    //         $token = $user->createToken('token')->accessToken;
+    //         //$role = 1; // $user->roles->first()->name; // Asumiendo que tienes una relación de roles
+
+    //         return response()->json([
+    //         // 'role' => $role,
+    //         'token' => $token
+    //         ], 200);
+    //     } else {
+    //         return response()->json(['message' => 'Unauthorized'], 401);
+    //     }
+    // }
+
 }
