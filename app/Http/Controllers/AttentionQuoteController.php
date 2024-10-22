@@ -39,8 +39,8 @@ class AttentionQuoteController extends Controller
                 'cliente_id' => 'nullable|exists:users,id',
                 'date' => 'sometimes|date',
                 'time'  => 'sometimes|date_format:H:i',
-                'status' => 'sometimes|in:1,pending,2,completed,3,cancelled',
-                // 'note' , // opcional
+                'end_time'  => 'sometimes|date_format:H:i',
+                'status' => 'sometimes|in:1,pending,2,completed,3,cancelled', //revisar criterios
             ]);
 
             if ($validatedData['isReservation'] == true) {
@@ -110,6 +110,8 @@ class AttentionQuoteController extends Controller
                 'client_id' => 'nullable|exists:users,id',
                 'date' => 'sometimes|date',
                 'time'  => 'sometimes|date_format:H:i',
+                'end_time'  => 'sometimes|date_format:H:i',
+                'note' => 'nullable|string', //esto va en delete
                 'status' => 'sometimes|in:1,pending,2,completed,3,cancelled',
             ]);
 

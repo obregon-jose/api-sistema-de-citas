@@ -70,9 +70,9 @@ class LoginController extends Controller
                     $roleName = $user->profiles()->first()->role->name;
                     
                     return response()->json([
-                        "message" => "Login exitoso.",
+                        // "message" => "Login exitoso.",
                         "role" => $roleName,
-                        "user" => $user,
+                        // "user" => $user,
                         "token" => $token,
                         // "token_type" => "Bearer",
                         // "expires_at" => now()->addHours(1),

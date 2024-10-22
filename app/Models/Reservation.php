@@ -13,6 +13,7 @@ class Reservation extends Model
         'client_id',
         'date',
         'time',
+        'end_time',
         'status',
         'quote_id',
         'note',

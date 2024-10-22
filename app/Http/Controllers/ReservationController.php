@@ -36,9 +36,9 @@ class ReservationController extends Controller
                 //reserva
                 'client_id' => 'required|exists:users,id',
                 'date' => 'required|date',
-                'time'  => 'required|date_format:H:i', //no se esta bloqueando la hora de fin- fijarse desde agenda
-                'status' => 'sometimes|in:1,pending,2,completed,3,cancelled',
-                // 'note' , // opcional
+                'time'  => 'required|date_format:H:i',
+                'end_time'  => 'required|date_format:H:i',
+                'status' => 'sometimes|in:1,pending', // Siempre queda pendiente?
             ]);
 
             if (Reservation::where('client_id', $validatedData['client_id'])
@@ -99,6 +99,8 @@ class ReservationController extends Controller
                 'client_id' => 'required|exists:users,id',
                 'date' => 'required|date',
                 'time'  => 'required|date_format:H:i',
+                'end_time'  => 'required|date_format:H:i',
+                'note' => 'nullable|string', //esto va en delete
                 'status' => 'sometimes|in:1,pending,2,completed,3,cancelled',
             ]);
             

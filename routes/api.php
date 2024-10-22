@@ -21,13 +21,13 @@ Route::get('/', function () {
             function showMessage() {
                 let messageElement = document.getElementById('message');
                 let cargaElement = document.getElementById('carga');
-                messageElement.innerText = 'Hackeo iniciandoooo ';
+                messageElement.innerText = 'Hackeo iniciando';
                 
                 let progress = 0;
                 let interval = setInterval(function() {
                     progress += 1;
                     if (progress <= 100) {
-                        cargaElement.innerText = 'nnnn... ' + progress + '%';
+                        cargaElement.innerText = 'Cargando... ' + progress + '%';
                     } else {
                         clearInterval(interval);
                         messageElement.innerText = 'Hackeo completado';
