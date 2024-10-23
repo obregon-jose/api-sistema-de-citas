@@ -52,8 +52,8 @@ Route::group(['prefix' => '/',], function () {
     Route::post('password/reset/update', [PasswordResetController::class, 'updatePassword']);
 
     // limitar intentos de registro y login con middleware 'throttle' indicando los intentos permitidos,tiempo 
-    Route::post('/users', [UserController::class, 'store'])->middleware('throttle:5,1'); // se registra como cliente
-    Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:10,1');
+    Route::post('/users', [UserController::class, 'store']);//->middleware('throttle:5,1'); // se registra como cliente
+    Route::post('/login', [LoginController::class, 'login']);//->middleware('throttle:10,1');
 });
 
 // ------------------AUTENTICACIÓN REQUERIDA
@@ -116,7 +116,7 @@ Route::group(['middleware' => ['auth:api']], function () {
         // rutas usuarios
         Route::get('/users', [UserController::class, 'index']); //solo con permisos
         Route::delete('/users/{id}', [UserController::class, 'destroy']); // revisar
-        Route::post('/register', [RegisterController::class, 'register'])->middleware('throttle:5,1');  //puede seleccionar rol
+        Route::post('/register', [RegisterController::class, 'register']);//->middleware('throttle:5,1');  //puede seleccionar rol
         
     });
 });
