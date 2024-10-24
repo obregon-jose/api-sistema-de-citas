@@ -97,8 +97,8 @@ class UserDetailController extends Controller
 
             return response()->json([
                 'message' => 'Perfil actualizado con éxito.',
-                'user' => $user,
-                'userDetail' => $userDetail,
+                // 'user' => $user,
+                // 'userDetail' => $userDetail,
             ], 200); 
         } catch (\Exception $err) {
             return response()->json([
