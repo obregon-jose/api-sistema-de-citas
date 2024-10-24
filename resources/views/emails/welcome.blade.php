@@ -85,7 +85,7 @@
             </div>
             @elseif ($role == 'root')
             <div class="content-item">
-                <p>El sistema de {{ env('APP_NAME') }} se ha lanzado bajo la empresa {{ env('BARBERSHOP_NAME') }} y está en línea. Ahora puedes comenzar a gestionar 
+                <p>El sistema de {{ env('APP_NAME') }} se ha lanzado bajo la empresa <strong>{{ env('BARBERSHOP_NAME') }}</strong> y está en línea. Ahora puedes comenzar a gestionar 
                     todas las operaciones y asegurarte de que todo funcione sin problemas.</p>
             </div>
 
