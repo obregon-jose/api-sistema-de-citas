@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
@@ -49,51 +50,53 @@ class LoginController extends Controller
      *     )
      * )
      */
-    public function login(Request $request) 
+
+    public function login(Request $request)
     {
-        try {
-            $validatedData = $request->validate([
-                "email" => "required|email",
-                "password" => "required"
-            ]);
 
-            $user = User::withTrashed()->where("email", $request->email)->first();
+        $credentials = $request->only('email', 'password');
 
-            if (!empty($user)) {
-                if ($user->trashed()) { //mostrar esto en caso de que se inactive una cuenta - solo casos especiales
-                    return response()->json([
-                        "message" => "Tenemos problemas para iniciar sesión con su cuenta, Comuníquese con el administrador.",
-                    ], 403);
-                }
-                if (Hash::check($request->password, $user->password)) {
-                    $token = $user->createToken("token")->accessToken;
-                    $roleName = $user->profiles()->first()->role->name;
-                    
-                    return response()->json([
-                        // "message" => "Login exitoso.",
-                        "role" => $roleName,
-                        // "user" => $user,
-                        "token" => $token,
-                        // "token_type" => "Bearer",
-                        // "expires_at" => now()->addHours(1),
-                    ], 200);
-                } else {
-                    return response()->json([
-                        "message" => "Correo electrónico o contraseña incorrectos, por favor revise los datos ingresados",
-                    ], 401);
-                }
-                
-            } else {
-                return response()->json([
-                    // "message" => "No hemos encontrado un usuario registrado con este correo electrónico.",
-                    "message" => "Correo electrónico o contraseña incorrectos, por favor revise los datos ingresados.",
-                ], 401);
-            }
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',
-                'error' => $e->getMessage(),
-            ], 500);
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            $token = $user->createToken("token")->accessToken;
+            $role = $user->profiles()->first()->role->name;
+
+            return response()->json(['token' => $token, 'role' => $role], 200);
         }
+
+        return response()->json(['message' => 'Correo electrónico o contraseña incorrectos.'], 401);
     }
+
+    //Con eliminación suave
+    public function login2(Request $request)
+    {
+        $credentials = $request->only('email', 'password');
+
+        // Encontrar el usuario (incluyendo los eliminados temporalmente)
+        $user = User::withTrashed()->where('email', $credentials['email'])->first();
+        // $user = User::withTrashed()->where("email", $request->email)->first();
+
+        if ($user) {
+            if ($user->trashed()) {
+                return response()->json([
+                    'message' => 'Su cuenta está desactivada.'
+                ], 403);
+            }
+
+            // Intentar autenticación
+            if (Auth::attempt($credentials)) {
+                $token = $user->createToken('token')->accessToken;
+                $role = $user->profiles()->first()->role->name;
+
+                return response()->json([
+                    'token' => $token,
+                    'role' => $role
+                ], 200);
+            }
+        }
+
+        // Si las credenciales son incorrectas o el usuario no existe
+        return response()->json(['message' => 'Correo electrónico o contraseña incorrectos.'], 401);
+    }
+
 }
