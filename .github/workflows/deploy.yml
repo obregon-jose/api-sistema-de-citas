@@ -1,0 +1,42 @@
+name: Deploy API Sistema de Gestion de Citas
+
+on:
+  push:
+    branches: [ production ]  # Ajusta esto según tu rama principal
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'  # Asegúrate de que esta versión sea compatible con Laravel 11
+
+    - name: Install Composer Dependencies
+      run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+    # - name: Run Tests
+    #   run: php artisan test
+
+    - name: Setup SSH Key
+      uses: webfactory/ssh-agent@v0.5.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Add Host Key
+      run: echo "${{ secrets.KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+
+    - name: Deploy to Server
+      env:
+        SSH_HOST: ${{ secrets.SSH_HOST }}
+        SSH_USER: ${{ secrets.SSH_USER }}
+        SSH_PATH: ${{ secrets.SSH_PATH }}
+      run: |
+        rsync -avz -e "ssh -o StrictHostKeyChecking=no" . ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_PATH }}
+        # ssh $SSH_USER@$SSH_HOST << 'EOF'
+          
+          # php artisan migrate
+        # EOF 
