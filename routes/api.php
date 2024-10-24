@@ -56,7 +56,7 @@ Route::group(['prefix' => '/',], function () {
     Route::post('/subir-imagen', [ImageController::class, 'store']);
     // limitar intentos de registro y login con middleware 'throttle' indicando los intentos permitidos,tiempo 
     Route::post('/users', [UserController::class, 'store'])->middleware('throttle:5,1'); // se registra como cliente
-    Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:10,1');
+    Route::post('/login', [LoginController::class, 'login']);
 });
 
 // ------------------AUTENTICACIÓN REQUERIDA
@@ -67,7 +67,7 @@ Route::get('/user', function (Request $request) {
 
 })->middleware('auth:api');
 
-Route::group(['middleware' => ['auth:api']], function () {
+Route::group(['middleware' => 'auth:api'], function () {
 /* ---------------- SOLO USUARIOS AUTENTICADOS --------------------*/
     Route::post('/logout', [LogoutController::class, 'logout']);
     // usuarios
@@ -79,7 +79,7 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::get('/services',[ServiceController::class,'index']);
     
     
-    /* ---------------- RUTAS CON ROLES --------------------*/
+/* ---------------- RUTAS CON ROLES --------------------*/
     // Requieren el rol 'cliente'
     Route::group(['middleware' => [ CheckRole::class . ':cliente']], function () {
         // rutas reservas-cliente

@@ -61,10 +61,15 @@ class LoginController extends Controller
             $token = $user->createToken("token")->accessToken;
             $role = $user->profiles()->first()->role->name;
 
-            return response()->json(['token' => $token, 'role' => $role], 200);
+            return response()->json([
+                'role' => $role,
+                'token' => $token, 
+            ], 200);
         }
 
-        return response()->json(['message' => 'Correo electrónico o contraseña incorrectos.'], 401);
+        return response()->json([
+            'message' => 'Correo electrónico o contraseña incorrectos.',
+        ], 401);
     }
 
     //Con eliminación suave
