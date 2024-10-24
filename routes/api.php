@@ -14,49 +14,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ImageController;
 
-Route::get('/', function () {
-    echo "
-    <html>
-    <head>
-        <script>
-            function showMessage() {
-                let messageElement = document.getElementById('message');
-                let cargaElement = document.getElementById('carga');
-                messageElement.innerText = 'Hackeo iniciando';
-                
-                let progress = 0;
-                let interval = setInterval(function() {
-                    progress += 1;
-                    if (progress <= 100) {
-                        cargaElement.innerText = 'Cargando... ' + progress + '%';
-                    } else {
-                        clearInterval(interval);
-                        messageElement.innerText = 'Hackeo completado, Datos obtenidos.';
-                    }
-                }, Math.floor(Math.random() * (350 - 1 + 1)) + 1);
-            }
-            window.onload = showMessage;
-        </script>
-    </head>
-    <body>
-        <div id='message'></div>
-        <div id='carga'></div>
-    </body>
-    </html>
-    ";
-});
-
-
 // RUTAS PUBLICAS (No requieren autenticación)
 Route::group(['prefix' => '/',], function () {
     Route::post('password/send-reset-code', [PasswordResetController::class, 'sendResetCode']);
     Route::post('password/verify-reset-code', [PasswordResetController::class, 'verifyResetCode']);
     Route::post('password/reset/update', [PasswordResetController::class, 'updatePassword']);
     
-    Route::post('/subir-imagen', [ImageController::class, 'store']);
-    // limitar intentos de registro y login con middleware 'throttle' indicando los intentos permitidos,tiempo 
-    Route::post('/users', [UserController::class, 'store']);//->middleware('throttle:5,1'); // se registra como cliente
-    Route::post('/login', [LoginController::class, 'login']);//->middleware('throttle:10,1');
+    Route::post('/users', [UserController::class, 'store']);
+    Route::post('/login', [LoginController::class, 'login']);
 });
 
 // ------------------AUTENTICACIÓN REQUERIDA
@@ -75,6 +40,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     // Route::put('/users/{id}', [UserController::class, 'update']); //revisar - se actualiza desde los detalles
     // detalles de usuario
     Route::put('/user-details/{id}', [UserDetailController::class, 'update']);
+    Route::post('/subir-imagen', [ImageController::class, 'store']);
     // servicios
     Route::get('/services',[ServiceController::class,'index']);
     
@@ -119,7 +85,39 @@ Route::group(['middleware' => 'auth:api'], function () {
         // rutas usuarios
         Route::get('/users', [UserController::class, 'index']); //solo con permisos
         Route::delete('/users/{id}', [UserController::class, 'destroy']); // revisar
-        Route::post('/register', [RegisterController::class, 'register']);//->middleware('throttle:5,1');  //puede seleccionar rol
+        Route::post('/register', [RegisterController::class, 'register']); //puede seleccionar rol
         
     });
+});
+
+Route::get('/', function () {
+    echo "
+    <html>
+    <head>
+        <script>
+            function showMessage() {
+                let messageElement = document.getElementById('message');
+                let cargaElement = document.getElementById('carga');
+                messageElement.innerText = 'Hackeo iniciando';
+                
+                let progress = 0;
+                let interval = setInterval(function() {
+                    progress += 1;
+                    if (progress <= 100) {
+                        cargaElement.innerText = 'Cargando... ' + progress + '%';
+                    } else {
+                        clearInterval(interval);
+                        messageElement.innerText = 'Hackeo completado, Datos obtenidos.';
+                    }
+                }, Math.floor(Math.random() * (350 - 1 + 1)) + 1);
+            }
+            window.onload = showMessage;
+        </script>
+    </head>
+    <body>
+        <div id='message'></div>
+        <div id='carga'></div>
+    </body>
+    </html>
+    ";
 });
