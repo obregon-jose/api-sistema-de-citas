@@ -12,6 +12,7 @@ use App\Http\Middleware\CheckRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\ImageController;
 
 Route::get('/', function () {
     echo "
@@ -45,12 +46,14 @@ Route::get('/', function () {
     ";
 });
 
+
 // RUTAS PUBLICAS (No requieren autenticación)
 Route::group(['prefix' => '/',], function () {
     Route::post('password/send-reset-code', [PasswordResetController::class, 'sendResetCode']);
     Route::post('password/verify-reset-code', [PasswordResetController::class, 'verifyResetCode']);
     Route::post('password/reset/update', [PasswordResetController::class, 'updatePassword']);
-
+    
+    Route::post('/subir-imagen', [ImageController::class, 'store']);
     // limitar intentos de registro y login con middleware 'throttle' indicando los intentos permitidos,tiempo 
     Route::post('/users', [UserController::class, 'store'])->middleware('throttle:5,1'); // se registra como cliente
     Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:10,1');
