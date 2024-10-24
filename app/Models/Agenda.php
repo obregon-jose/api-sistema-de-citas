@@ -20,9 +20,9 @@ class Agenda extends Model
         return $this->belongsTo(Profile::class);
     }
 
-    public function weeks()
+    public function days()
     {
-        return $this->hasMany(Week::class);
+        return $this->hasMany(Day::class);
     }
 }
 

@@ -9,10 +9,10 @@ class TimeSlot extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['week_id', 'dia', 'inicio', 'fin', 'estado'];
+    protected $fillable = ['day_id', 'inicio', 'fin', 'estado'];
 
-    public function week()
+    public function day()
     {
-        return $this->belongsTo(Week::class);
+        return $this->belongsTo(Day::class);
     }
 }

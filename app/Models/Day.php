@@ -5,11 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Week extends Model
+class Day extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['agenda_id','fecha_inicio', 'fecha_fin'];
+    protected $fillable = [
+        'agenda_id',
+        'nombre'
+    ];
 
     public function agenda()
     {
@@ -17,7 +20,7 @@ class Week extends Model
     }
 
     public function timeSlots()
-    {
+    { 
         return $this->hasMany(TimeSlot::class);
     }
 }

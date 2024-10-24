@@ -13,6 +13,7 @@ class CreateAgendasTable extends Migration
             $table->foreignId('profile_id')->constrained()->onDelete('cascade'); // Relación con peluqueros
             $table->string('name')->unique();
             $table->text('description')->nullable();
+            $table->boolean('estado')->default(false);
             $table->timestamps();
         });
     }

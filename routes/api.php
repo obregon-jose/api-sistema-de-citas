@@ -7,12 +7,12 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\UserDetailController;
 use App\Http\Controllers\TimeSlotController;
+use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\User\UserProfileController;
 use App\Http\Middleware\CheckRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceController;
-use App\Models\TimeSlot;
 
 Route::get('/', function () {
     echo "
@@ -47,20 +47,26 @@ Route::get('/', function () {
 });
 
 
-//Obtener las franjas por el barbero
-Route::get('/barber/{profileId}/agendas', [TimeSlotController::class, 'obtenerAgendasPorBarbero']);
+// Ruta para generar franjas horarias para una semana en una agenda específica
+Route::post('agendas/{agendaId}/createTimeSlots', [TimeSlotController::class, 'generarFranjaSemana']);
+// Ruta para actualizar una franja horaria específica
+Route::put('/agendas/timeSlot/{id}', [TimeSlotController::class, 'actualizarFranja']);
+// Ruta para eliminar una franja horaria específica
+Route::delete('/agendas/timeSlot/{id}', [TimeSlotController::class, 'eliminarFranja']);
 
-// Crear una nueva agenda para el peluquero
-Route::post('/agendas/{profileId}', [TimeSlotController::class, 'store']);
+// Ruta para crear una nueva agenda para un perfil específico
+Route::post('/{profileId}/agendas/create', [AgendaController::class, 'store']);
 
-Route::group(['prefix' => 'agenda/{agendaId}'], function () {
-    // Generar franjas horarias para una semana específica dentro de una agenda
-    Route::post('/franjas', [TimeSlotController::class, 'generarFranjaSemana']);
-    // Obtener todas las semanas y sus franjas horarias asociadas
-    Route::get('/semanas', [TimeSlotController::class, 'obtenerSemanas']);
-    // Obtener las franjas horarias de una semana específica con la fecha
-    Route::get('/agendas/{agendaId}/semanas', [TimeSlotController::class, 'obtenerSemanasPorFecha']); //se hace el query de esta forma: agendas/{agendaId}/semanas?fecha_inicio=2024-10-16
-});
+// Ruta para actualizar una agenda específica
+Route::put('agendas/{id}', [AgendaController::class, 'update']);
+
+// Ruta para obtener una agenda por nombre para un perfil específico
+Route::get('/agendas/search', [AgendaController::class, 'obtenerAgendaPorNombre']);
+
+// Ruta para obtener todas las agendas de un perfil específico
+Route::get('/{profileId}/agendas', [AgendaController::class, 'obtenerAgendasPorBarbero']);
+
+Route::get('/agendas', [AgendaController::class, 'index']);
 
 
 
@@ -112,7 +118,6 @@ Route::group(['middleware' => ['auth:api']], function () {
         Route::delete('/services/{id}',[ServiceController::class,'destroy']);
 
         //rutas horarios
-        Route::get('/{profileId}/agendas', [TimeSlotController::class, 'obtenerAgendasPorBarbero']);
 
     });
     // Requieren el rol 'administrador'

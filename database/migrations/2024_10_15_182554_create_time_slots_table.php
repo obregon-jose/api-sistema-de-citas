@@ -10,11 +10,10 @@ class CreateTimeSlotsTable extends Migration
     {
         Schema::create('time_slots', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('week_id')->unique()->constrained()->onDelete('cascade'); // Relación con semanas
-            $table->string('dia');       // Día de la semana (Lunes, Martes, etc.)
-            $table->time('inicio');      // Hora de inicio
-            $table->time('fin');         // Hora de fin
-            $table->boolean('estado')->default(true); // Estado de la franja
+            $table->foreignId('day_id')->constrained()->onDelete('cascade');
+            $table->time('inicio');
+            $table->time('fin');
+            $table->boolean('estado')->default(true);
             $table->timestamps();
         });
     }
