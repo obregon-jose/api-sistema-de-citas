@@ -61,7 +61,7 @@ class LoginController extends Controller
             $user->tokens()->delete();
 
             $token = $user->createToken("token")->plainTextToken;
-            $role = $user->profiles()->first()->role->name;
+            $role = $user->profiles()->first()->role()->where('status', true)->first()->name ?? null;
 
             return response()->json([
                 'role' => $role,

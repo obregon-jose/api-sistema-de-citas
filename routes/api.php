@@ -7,16 +7,15 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\User\RoleController;
 use App\Http\Controllers\User\UserController;
-// use App\Http\Controllers\User\ImageController;
 use App\Http\Controllers\User\UserDetailController;
 use App\Http\Controllers\User\UpdatePasswordController;
 use App\Http\Controllers\AttentionQuoteController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\RoleController;
 
-use App\Http\Controllers\ImageController;
+
 
 // RUTAS PUBLICAS (No requieren autenticación)
 Route::group(['prefix' => '/',], function () {
@@ -49,9 +48,7 @@ Route::group(['prefix' => '/', 'middleware' => 'auth:sanctum',], function () {
     // Route::put('/users/{id}', [UserController::class, 'update']); //revisar - se actualiza desde los detalles
     // detalles de usuario
     Route::put('/user-details/{id}', [UserDetailController::class, 'update']);
-
-    Route::post('/subir-imagen', [ImageController::class, 'store']);
-    Route::post('/upload-image', [ImageController::class, 'uploadImage']);
+    Route::put('/user-details/image/{id}', [UserDetailController::class, 'uploadImage']);
     
 /* ---------------- RUTAS CON ROLES --------------------*/
 
@@ -91,6 +88,8 @@ Route::group(['prefix' => '/', 'middleware' => 'auth:sanctum',], function () {
     });
     // Requieren el rol 'root'
     Route::group(['middleware' => [CheckRole::class . ':root']], function () {
+        //
+        Route::get('/roles', [RoleController::class, 'index']);
         // rutas usuarios
         Route::get('/users', [UserController::class, 'index']);
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
