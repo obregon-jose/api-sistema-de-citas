@@ -60,9 +60,8 @@ class PasswordResetController extends Controller
         // Despachar el Job para enviar el correo en segundo plano
         SendResetCodeEmail::dispatch($user, $code);
         return response()->json([
-            'success' => true,
-            // 'message' => 'Código enviado'
-        ], 204);
+            'message' => 'Hemos enviado un código de verificación a tu correo electrónico, por favor revisa tu bandeja de entrada.'
+        ], 200);
     }
 
     /**
@@ -113,10 +112,8 @@ class PasswordResetController extends Controller
         }
 
         return response()->json([
-            'success' => true,
-            // 'message' => 'Código verificado',
-            'email' => $request->email //revisar si es necesario mandar
-        ]);
+            'email' => $request->email
+        ], 200);
     }
 
     /**
@@ -164,7 +161,6 @@ class PasswordResetController extends Controller
 
         return response()->json([
             'message' => 'Su contraseña se a actualizado con éxito.',
-            'success' => true,
         ]);
     }
 }

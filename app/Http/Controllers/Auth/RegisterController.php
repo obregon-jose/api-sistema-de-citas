@@ -72,7 +72,7 @@ class RegisterController extends Controller
             // Verificar si el correo ya está registrado
             if (User::where('email', $validatedData['email'])->exists()) {
                 return response()->json([
-                    'message' => 'Ya existe un usuario registrado con el correo electrónico proporcionado.',
+                    'message' => 'Ya existe un usuario registrado con el correo electrónico.',
                 ], 400);
             }
 
@@ -96,8 +96,6 @@ class RegisterController extends Controller
             // Devolver respuesta
             return response()->json([
                 'message' => $roleName . ' registrado con éxito.',
-                // 'user' => $user,
-                // 'role' => $roleName,
             ], 201);
  
         } catch (\Exception $e) {

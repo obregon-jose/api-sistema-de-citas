@@ -23,16 +23,7 @@ class ImageController extends Controller
         //
         {
             
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $path = $image->storeAs('public/images', $imageName);
-
-            return response()->json(['url' => Storage::url($path)], 200);
-            
-        }
-
-        return response()->json(['error' => 'No image uploaded'], 400);
+        
     }
     }
 
