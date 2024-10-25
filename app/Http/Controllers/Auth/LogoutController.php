@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LogoutController extends Controller
 {    
@@ -32,16 +33,11 @@ class LogoutController extends Controller
      */
     public function logout(Request $request) 
     {
-        try {
-            $request->user()->token()->revoke();
-            return response()->json([
-                "message" => "Sesión cerrada con éxito",
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        $user = Auth::user();
+        $user->tokens()->delete();
+        return response()->json([
+            'success' => true,
+            // 'message' => 'Sesión cerrada'
+        ], 204);
     }
 }

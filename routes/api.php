@@ -14,30 +14,26 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ImageController;
 
-
-
-
 // RUTAS PUBLICAS (No requieren autenticación)
 Route::group(['prefix' => '/',], function () {
     Route::post('password/send-reset-code', [PasswordResetController::class, 'sendResetCode']);
     Route::post('password/verify-reset-code', [PasswordResetController::class, 'verifyResetCode']);
-    Route::post('password/reset/update', [PasswordResetController::class, 'updatePassword']);
-    
-    Route::post('/subir-imagen', [ImageController::class, 'store']);
-    // limitar intentos de registro y login con middleware 'throttle' indicando los intentos permitidos,tiempo 
-    Route::post('/users', [UserController::class, 'store'])->middleware('throttle:5,1'); // se registra como cliente
+    Route::post('password/reset-update', [PasswordResetController::class, 'updatePassword']);
+
+    Route::post('/users', [UserController::class, 'store']); // se registra como cliente
     Route::post('/login', [LoginController::class, 'login']);
 });
 
 // ------------------AUTENTICACIÓN REQUERIDA
 // Perfil del usuario autenticado
 Route::get('/user', function (Request $request) {
-    $user = $request->user()->load(['profiles.role', 'detail']);
+    // $user = $request->user()->load(['profiles.role', 'detail']);
+    $user = $request->user()->load(['detail']);
     return $user;
 
 })->middleware('auth:sanctum');
 
-Route::group(['middleware' => 'auth:sanctum','prefix' => '/'], function () {
+Route::group(['prefix' => '/', 'middleware' => 'auth:sanctum',], function () {
 /* ---------------- SOLO USUARIOS AUTENTICADOS --------------------*/
     Route::post('/logout', [LogoutController::class, 'logout']);
     // usuarios
@@ -45,13 +41,14 @@ Route::group(['middleware' => 'auth:sanctum','prefix' => '/'], function () {
     // Route::put('/users/{id}', [UserController::class, 'update']); //revisar - se actualiza desde los detalles
     // detalles de usuario
     Route::put('/user-details/{id}', [UserDetailController::class, 'update']);
+    Route::post('/subir-imagen', [ImageController::class, 'store']);
     // servicios
     Route::get('/services',[ServiceController::class,'index']);
     
     
 /* ---------------- RUTAS CON ROLES --------------------*/
     // Requieren el rol 'cliente'
-    Route::group(['middleware' => [ CheckRole::class . ':cliente']], function () {
+    Route::group(['middleware' => [ CheckRole::class . ':root,cliente']], function () {
         // rutas reservas-cliente
         Route::get('/reservations',[ReservationController::class,'index']);
         // Route::get('/reservations/{id}',[ReservationController::class,'show']); //no
@@ -61,7 +58,7 @@ Route::group(['middleware' => 'auth:sanctum','prefix' => '/'], function () {
         
     });
     // Requieren el rol 'peluquero'
-    Route::group(['middleware' => [ CheckRole::class . ':peluquero']], function () {
+    Route::group(['middleware' => [ CheckRole::class . ':root,peluquero']], function () {
         // rutas servicios
         Route::get('/services/{id}',[ServiceController::class,'show']); 
         Route::post('/services',[ServiceController::class,'store']);
@@ -77,11 +74,11 @@ Route::group(['middleware' => 'auth:sanctum','prefix' => '/'], function () {
 
     });
     // Requieren el rol 'administrador'
-    Route::group(['middleware' => [CheckRole::class . ':administrador']], function () {
+    Route::group(['middleware' => [CheckRole::class . ':root,administrador']], function () {
         
     });
     // Requieren el rol 'dueño'
-    Route::group(['middleware' => [CheckRole::class . ':dueño']], function () {
+    Route::group(['middleware' => [CheckRole::class . ':root,dueño']], function () {
         
     });
     // Requieren el rol 'root'
@@ -89,7 +86,7 @@ Route::group(['middleware' => 'auth:sanctum','prefix' => '/'], function () {
         // rutas usuarios
         Route::get('/users', [UserController::class, 'index']); //solo con permisos
         Route::delete('/users/{id}', [UserController::class, 'destroy']); // revisar
-        Route::post('/register', [RegisterController::class, 'register'])->middleware('throttle:5,1');  //puede seleccionar rol
+        Route::post('/register', [RegisterController::class, 'register']);  //puede seleccionar rol
         
     });
 });

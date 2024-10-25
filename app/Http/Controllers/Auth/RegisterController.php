@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\RandomGeneratorController as RandomPasswordGenerator;
+use App\Jobs\SendWelcomeEmail;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Profile;
@@ -62,12 +63,11 @@ class RegisterController extends Controller
             $passwordGenerado = $GeneratorController->generateRandomPassword();
 
             $validatedData = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|email',
-                'password' => 'sometimes', //se genera automática
-                'role_id' => 'required|exists:roles,id',
-                // 'status' => 'nullable|boolean',
-
+                //revisar necesidad de validacion
+                'name' => 'sometimes',
+                'email' => 'sometimes',
+                'password' => 'sometimes', 
+                'role_id' => 'sometimes|exists:roles,id',
             ]);
             // Verificar si el correo ya está registrado
             if (User::where('email', $validatedData['email'])->exists()) {
@@ -86,20 +86,18 @@ class RegisterController extends Controller
             ]);
             UserDetail::create([
                 'user_id' => $user->id,
-                //'photo' => 'https://ui-avatars.com/api/?name=' . $user->name . '&color=7F9CF5&background=EBF4FF',
-                //revisar el modo de foto
             ]);
 
             $roleName = Role::find($validatedData['role_id'])->name;
             
             // Enviar correo de bienvenida
-            Mail::to($user->email)->send(new WelcomeEmail($user, $roleName, $passwordGenerado));
+            SendWelcomeEmail::dispatch($user, $roleName, $passwordGenerado);
             
             // Devolver respuesta
             return response()->json([
                 'message' => $roleName . ' registrado con éxito.',
-                'user' => $user,
-                'role' => $roleName,
+                // 'user' => $user,
+                // 'role' => $roleName,
             ], 201);
  
         } catch (\Exception $e) {
@@ -109,4 +107,5 @@ class RegisterController extends Controller
             ], 400);
         }
     }
+
 }

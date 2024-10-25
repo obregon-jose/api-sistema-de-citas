@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Mail\ResetPasswordMail;
+use App\Jobs\SendResetCodeEmail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 
 class PasswordResetController extends Controller
 {
@@ -42,14 +41,10 @@ class PasswordResetController extends Controller
      */
     public function sendResetCode(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email'
-        ]);
-        
-        $user = User::where('email', $request->email)->first();
+        $user = User::firstWhere('email', $request->email);
         if (!$user) {
             return response()->json([
-                'message' => 'No hemos encentrado una cuanta asociada a este correo, por favor verifica el correo ingresado.'
+                'message' => 'No hemos encentrado una cuanta asociada a este correo.'
             ], 404);
         }
 
@@ -62,12 +57,12 @@ class PasswordResetController extends Controller
             ]
         );
 
-        // Enviar el correo con el código
-        Mail::to($request->email)->send(new ResetPasswordMail($user, $code));
-
+        // Despachar el Job para enviar el correo en segundo plano
+        SendResetCodeEmail::dispatch($user, $code);
         return response()->json([
-            'message' => 'Hemos enviado un código de verificación a tu correo electrónico, por favor revisa tu bandeja de entrada.'
-        ]);
+            'success' => true,
+            // 'message' => 'Código enviado'
+        ], 204);
     }
 
     /**
@@ -103,29 +98,24 @@ class PasswordResetController extends Controller
     *     )
     * )
     */
+
     public function verifyResetCode(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'token' => 'required|string'
-        ]);
+        $exists = DB::table('password_reset_tokens')
+        ->where('email', $request->email)
+        ->where('token', $request->token)
+        ->exists();
 
-        $record = DB::table('password_reset_tokens')
-            ->where('email', $request->email)
-            ->where('token', $request->token)
-            ->first();
-
-        if (!$record) {
+        if (!$exists) {
             return response()->json([
-                'status' => false,
-                'message' => 'El código ingresado en invalido'
+                'message' => 'El código ingresado es inválido'
             ], 400);
         }
 
         return response()->json([
-            'status' => true,
-            'message' => 'Código verificado', 
-            'email' => $request->email
+            'success' => true,
+            // 'message' => 'Código verificado',
+            'email' => $request->email //revisar si es necesario mandar
         ]);
     }
 
@@ -155,25 +145,26 @@ class PasswordResetController extends Controller
      */
     public function updatePassword(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|confirmed|min:8|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/',
-        ]);
+        $exists = DB::table('password_reset_tokens')
+        ->where('email', $request->email)
+        ->where('token', $request->token)
+        ->exists();
 
-        $record = DB::table('password_reset_tokens')
-            ->where('email', $request->email)
-            ->first();
+        if (!$exists) {
+            return response()->json([
+                'message' => 'Por favor, solicite un código de restablecimiento.'
+            ], 400);
+        }
 
-        // Actualizar la contraseña del usuario
-        $user = User::where('email', $request->email)->first();
-        $user->password = bcrypt($request->password);
-        $user->save();
+        //Actualizar la contraseña del usuario
+        User::where('email', $request->email)->update(['password' => bcrypt($request->password)]);
 
         // Eliminar el token usado
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
         return response()->json([
-            'message' => 'Su contraseña se a actualizado con éxito.'
+            'message' => 'Su contraseña se a actualizado con éxito.',
+            'success' => true,
         ]);
     }
 }

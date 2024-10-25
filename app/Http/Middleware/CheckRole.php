@@ -19,20 +19,20 @@ class CheckRole
      * @param  string  $role
      * @return mixed
      */
-    public function handle(Request $request, Closure $next, $role): Response
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        $user = Auth::user();  // Obtiene el usuario autenticado
+        $user = Auth::user();
 
-        // Verifica si el usuario tiene el rol en uno de sus perfiles
-        $hasRole = $user->profiles()->whereHas('role', function ($query) use ($role) {
-            $query->where('name', $role);  // Compara el nombre del rol
-        })->exists();
+        $userRoles = $user->profiles()->with('role')->get()->pluck('role.name')->unique()->toArray();
+
+        $hasRole = !empty(array_intersect($roles, $userRoles));
 
         if (!$hasRole) {
-            // Retorna error si el usuario no tiene el rol requerido
-            return response()->json(['message' => 'Acceso denegado. No tienes los permisos necesarios.'], 403);
+            // Retorna error si el usuario no tiene ninguno de los roles requeridos
+            return response()->json([
+                'message' => 'Acceso denegado. No tienes los permisos necesarios.',
+            ], 403);
         }
-
-        return $next($request);  // Permite continuar si el rol es correcto
+        return $next($request);
     }
 }

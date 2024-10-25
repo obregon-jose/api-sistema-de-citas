@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Mail\WelcomeEmail;
+use App\Jobs\SendWelcomeEmail;
 use App\Models\Profile;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\UserDetail;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
@@ -44,7 +43,8 @@ class UserController extends Controller
             //$users = User::paginate(10);// Usar paginación en lugar de cargar todos los usuarios
 
             // Obtener solo los usuarios activos
-            $users = User::with(['profiles.role', 'detail'])->get();
+            // $users = User::with(['profiles.role', 'detail'])->get();
+            $users = User::with(['detail'])->get();
             // Obtener solo los usuarios eliminados-Inactivos
             // $deletedUsers = User::onlyTrashed()->get();
             // Obtener todos los usuarios, incluidos los eliminados
@@ -107,13 +107,11 @@ class UserController extends Controller
             $defaultRoleId = 1;
             
             $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email',
-            'password' => 'required|min:8|regex:/[a-z]/|regex:/[0-9]/',
-            'phone' => 'nullable|string|min:8|max:10'
-            //'role_id' => 'nullable|exists:roles,id', //predefinido
-            // 'status' => 'nullable|boolean',
-
+                //revisar necesidad de validacion
+                'name' => 'sometimes|max:255',
+                'email' => 'sometimes',
+                'password' => 'sometimes|min:8|regex:/[a-z]/|regex:/[0-9]/',
+                'phone' => 'sometimes|string|min:8|max:10'
             ]);
 
             // Verificar si el correo ya está registrado
@@ -135,21 +133,19 @@ class UserController extends Controller
             // Crear el detalle del usuario
             UserDetail::create([
                 'user_id' => $user->id,
-                //'phone' => $validatedData['phone'],
-                //'photo' => 'https://ui-avatars.com/api/?name=' . $user->name . '&color=7F9CF5&background=EBF4FF',
-                //revisar el modo de foto
             ]);
-
+            //se podria consultar el el envio del correo
             $roleName = Role::find($defaultRoleId)->name;
             
             // Enviar correo de bienvenida
-            Mail::to($user->email)->send(new WelcomeEmail($user, $roleName, $passwordGenerado ?? ''));
-            
+            SendWelcomeEmail::dispatch($user, $roleName,'');
+                        
             // Devolver respuesta
             return response()->json([
+                'success' => true,
                 'message' => 'Su cuenta se ha registrado con éxito.',
-                'user' => $user,
-                'role' => $roleName,
+                // 'user' => $user,
+                // 'role' => $roleName,
             ], 201);
      
         } catch (\Exception $e) {
@@ -193,7 +189,8 @@ class UserController extends Controller
     {
         //
         try {
-            $user = User::with(['profiles.role', 'detail'])->findOrFail($id);
+            // $user = User::with(['profiles.role', 'detail'])->findOrFail($id);
+            $user = User::with(['detail'])->findOrFail($id);
             return response()->json([
                 'user' => $user,
             ], 200);
@@ -266,9 +263,7 @@ class UserController extends Controller
                 'password' => 'nullable|min:8|regex:/[a-z]/|regex:/[0-9]/',
             ]);
 
-            if ($request->filled('password')) {
-                $validatedUser['password'] = bcrypt($validatedUser['password']);
-            }
+            $validatedUser['password'] = bcrypt($validatedUser['password']);
 
             $user->update($validatedUser);
 
@@ -319,7 +314,8 @@ class UserController extends Controller
         try {
             $user = User::findOrFail($id);
             
-            $user->delete(); //se debe es actualizar el estado del perfil
+            $user->delete(); 
+            //se debe es actualizar el estado del perfil
             // $user->update(['status' => false]);
 
             return response()->json([

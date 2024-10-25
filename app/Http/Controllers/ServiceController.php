@@ -32,7 +32,7 @@ class ServiceController extends Controller
     public function index()
     {
         //
-        $services=Service::all();
+        $services = Service::all();
         return response()->json([
             'services'=>$services,
         ],200);
@@ -77,23 +77,18 @@ class ServiceController extends Controller
     {
         //
         try {
-            $validatedData = $request->validate([
-                "name" => "required|string",
-                "price" => "required|integer"
-                
-            ]);
             // Verificar si el servicio ya está registrado
-            if (Service::where('name', $validatedData['name'])->exists()) {
+            if (Service::where('name', $request->name)->exists()) {
                 return response()->json([
-                    'message' => 'Ya existe un servicio con este nombre.',
+                    'message' => 'Ya existe el servicio.',
                 ], 400);
             }
             
-            $service = Service::create($validatedData);
+            $service = Service::create($request->all());
 
             return response()->json([
                 'message' => 'servicio creado con éxito.',
-                'service' => $service,
+                // 'service' => $service,
             ], 201);
         } catch (\Exception $err) {
             return response()->json([
@@ -202,15 +197,15 @@ class ServiceController extends Controller
         try {
             $service = Service::findOrFail($id);
             $validatedService = $request->validate([
-                'name' => 'nullable|string|max:100|unique:services,name,'.$service->id,
+                'name' => 'nullable|unique:services,name,'.$service->id,
                 'price' => 'nullable|integer',
             ]);
 
             $service->update($validatedService);
 
             return response()->json([
-                'message' => 'Servicio actualizado exitosamente.',
-                'servicio' => $service,
+                'message' => 'Servicio actualizado',
+                // 'servicio' => $service,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -256,7 +251,7 @@ class ServiceController extends Controller
             $service = service::findOrFail($id);
             $service->delete();
             return response()->json([
-                'message' => 'El service ha pasado a estar inactivo.', //esto esta eliminando de verdad verdad
+                'message' => 'El service ha pasado a estar inactivo.', //esto esta eliminando
             ], 200);
         } catch (\Exception $err) {
             return response()->json([

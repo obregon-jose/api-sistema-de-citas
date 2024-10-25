@@ -42,7 +42,7 @@ class UserSeeder extends Seeder
             [
                 'nickname' => 'root', 
                 'phone' => '1234567890', 
-                'photo' => 'https://ui-avatars.com/api/?name=JOSE+OBREGON&color=7F9CF5&background=EBF4FF', 
+                'photo' => 'https://avatars.githubusercontent.com/u/145609553?s=48&v=4', 
                 'note' => 'Usuario root del sistema'
             ]
         );
