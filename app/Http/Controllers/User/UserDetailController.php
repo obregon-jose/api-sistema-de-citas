@@ -63,31 +63,28 @@ class UserDetailController extends Controller
 
     public function uploadImage(Request $request, $user_id)
     {
-        $imageData = $request->input('image');
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
 
-        $imageDecoded = base64_decode($imageData);
-
-        $imageName = Str::random(10) . '.png';
-        $filePath = "images/perfiles/{$user_id}/" . $imageName;
-
-        $userDetail = UserDetail::where('user_id', $user_id)->first();
-        if ($userDetail && $userDetail->photo) {
-            $oldImagePath = str_replace(asset('storage/'), '', $userDetail->photo);
-            if (Storage::disk('public')->exists($oldImagePath)) {
-                Storage::disk('public')->delete($oldImagePath);
+            $imageName = Str::random(10) . '.png';
+            $filePath = "images/perfiles/{$user_id}/" . $imageName;
+            $userDetail = UserDetail::where('user_id', $user_id)->first(); //2
+            if ($userDetail && $userDetail->photo) {
+                $oldImagePath = str_replace(asset('storage/'), '', $userDetail->photo);
+                if (Storage::disk('public')->exists($oldImagePath)) {
+                    Storage::disk('public')->delete($oldImagePath);
+                }
             }
+            Storage::disk('public')->put($filePath, file_get_contents($image));
+            $imageUrl = asset('storage/' . $filePath);
+            $userDetail->update(['photo' => $imageUrl]);
+            return response()->json([
+                'message' => 'Imagen subida.',
+                // 'url' => $imageUrl
+            ], 201);
+            //return response()->json(['url' => Storage::url($path)], 200);
+            
         }
-
-        Storage::disk('public')->put($filePath, $imageDecoded);
-
-        $imageUrl = asset('storage/' . $filePath);
-
-        $userDetail->update(['photo' => $imageUrl]);
-
-        return response()->json([
-            'message' => 'Imagen subida con éxito.',
-            // 'url' => $imageUrl
-        ], 201);
     }
 
     public function destroy($user_id)
