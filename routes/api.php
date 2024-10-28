@@ -11,6 +11,7 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\UserDetailController;
 use App\Http\Controllers\User\UpdatePasswordController;
 use App\Http\Controllers\AttentionQuoteController;
+use App\Http\Controllers\BarberController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\RoleController;
@@ -29,6 +30,8 @@ Route::group(['prefix' => '/',], function () {
 
     // Mostrar servicios
     Route::get('/services',[ServiceController::class,'index']);
+
+    Route::post('/subir-imagen/{id}', [UserDetailController::class, 'uploadImage']);
 });
 
 // ------------------AUTENTICACIÓN REQUERIDA
@@ -71,6 +74,9 @@ Route::group(['prefix' => '/', 'middleware' => 'auth:sanctum',], function () {
         Route::post('/services',[ServiceController::class,'store']);
         Route::put('/services/{id}',[ServiceController::class,'update']);
         Route::delete('/services/{id}',[ServiceController::class,'destroy']);
+        //Ruta para obtener los peluqueros
+        Route::get('/barbers', [BarberController::class, 'index']);
+        
         // rutas reservas-peluquero [atención]
         Route::get('/attention-quotes',[AttentionQuoteController::class,'index']);
         // Route::get('/attention-quotes/{id}',[AttentionQuoteController::class,'show']);
