@@ -17,8 +17,6 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\RoleController;
 
 
-Route::post('/subir-imagen/{id}', [UserDetailController::class, 'uploadImage']);
-Route::put('/user-details/image/{id}', [UserDetailController::class, '']);
 // RUTAS PUBLICAS (No requieren autenticación)
 Route::group(['prefix' => '/',], function () {
     Route::post('password/send-reset-code', [PasswordResetController::class, 'sendResetCode']);
@@ -31,7 +29,7 @@ Route::group(['prefix' => '/',], function () {
     // Mostrar servicios
     Route::get('/services',[ServiceController::class,'index']);
 
-    Route::post('/subir-imagen/{id}', [UserDetailController::class, 'uploadImage']);
+    Route::post('/subir-imagen/{id}', [UserDetailController::class, 'uploadImage']); //revisar
 });
 
 // ------------------AUTENTICACIÓN REQUERIDA
@@ -52,8 +50,6 @@ Route::group(['prefix' => '/', 'middleware' => 'auth:sanctum',], function () {
     // Route::put('/users/{id}', [UserController::class, 'update']); //revisar - se actualiza desde los detalles
     // detalles de usuario
     Route::put('/user-details/{id}', [UserDetailController::class, 'update']);
-    // Route::put('/user-details/image/{id}', [UserDetailController::class, 'uploadImage']);
-    Route::put('/user-details/image/{id}', [UserDetailController::class, 'uploadImage2']);
     
 /* ---------------- RUTAS CON ROLES --------------------*/
 
