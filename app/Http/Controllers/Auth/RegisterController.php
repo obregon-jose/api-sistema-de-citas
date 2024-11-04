@@ -3,16 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\RandomGeneratorController as RandomPasswordGenerator;
 use App\Jobs\SendWelcomeEmail;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Profile;
-use App\Mail\WelcomeEmail;
 use App\Models\UserDetail;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
 
 class RegisterController extends Controller
 {
@@ -58,10 +54,7 @@ class RegisterController extends Controller
      */
     public function register(Request $request) 
     {
-        $GeneratorController = new RandomPasswordGenerator();
         try {
-            $passwordGenerado = $GeneratorController->generateRandomPassword();
-
             $validatedData = $request->validate([
                 //revisar necesidad de validacion
                 'name' => 'sometimes',
@@ -75,8 +68,8 @@ class RegisterController extends Controller
                     'message' => 'Ya existe un usuario registrado con el correo electrónico.',
                 ], 400);
             }
-
-            $validatedData['password'] = bcrypt($passwordGenerado);
+            $passwordDesencriptado = $validatedData['password'];
+            $validatedData['password'] = bcrypt($validatedData['password']);
 
             // Crear el usuario
             $user = User::create($validatedData);
@@ -91,7 +84,7 @@ class RegisterController extends Controller
             $roleName = Role::find($validatedData['role_id'])->name;
             
             // Enviar correo de bienvenida
-            SendWelcomeEmail::dispatch($user, $roleName, $passwordGenerado);
+            SendWelcomeEmail::dispatch($user, $roleName, $passwordDesencriptado);
             
             // Devolver respuesta
             return response()->json([

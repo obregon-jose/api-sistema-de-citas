@@ -17,16 +17,16 @@ class SendWelcomeEmail implements ShouldQueue
 
     protected $user;
     protected $roleName;
-    protected $passwordGenerado;
+    protected $password;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(User $user, $roleName, $passwordGenerado)
+    public function __construct(User $user, $roleName, $password)
     {
         $this->user = $user;
         $this->roleName = $roleName;
-        $this->passwordGenerado = $passwordGenerado;
+        $this->password = $password;
     }
 
     /**
@@ -35,6 +35,6 @@ class SendWelcomeEmail implements ShouldQueue
     public function handle(): void
     {
         //
-        Mail::to($this->user->email)->send(new WelcomeEmail($this->user, $this->roleName, $this->passwordGenerado));
+        Mail::to($this->user->email)->send(new WelcomeEmail($this->user, $this->roleName, $this->password));
     }
 }

@@ -93,13 +93,16 @@ Route::group(['prefix' => '/', 'middleware' => 'auth:sanctum',], function () {
     // Requieren el rol 'root'
     Route::group(['middleware' => [CheckRole::class . ':root']], function () {
         //
-        Route::get('/roles', [RoleController::class, 'index']);
+        
         // rutas usuarios
         Route::get('/users', [UserController::class, 'index']);
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
         
         
+    });
+    Route::group(['middleware' => [CheckRole::class . ':root,dueño,administrador,peluquero']], function () {
+        Route::get('/roles', [RoleController::class, 'index']);
     });
 });
 

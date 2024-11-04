@@ -96,7 +96,7 @@
             </div>
             @endif
 
-            @if ($role != 'cliente')
+            @if (!empty($password))
             <div class="content-item">
                 <p class="left-align">Para comenzar, inicia sesión en tu cuenta con las siguientes credenciales:</p>
                 <p class="left-align">Correo: {{ $user->email }}</p>
