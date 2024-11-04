@@ -108,10 +108,10 @@ class UserController extends Controller
             
             $validatedData = $request->validate([
                 //revisar necesidad de validacion
-                'name' => 'sometimes|max:255',
+                'name' => 'sometimes',
                 'email' => 'sometimes',
-                'password' => 'sometimes|min:8|regex:/[a-z]/|regex:/[0-9]/',
-                'phone' => 'sometimes|string|min:8|max:10'
+                'password' => 'sometimes',
+                'phone' => 'sometimes'
             ]);
 
             // Verificar si el correo ya está registrado
@@ -142,7 +142,6 @@ class UserController extends Controller
                         
             // Devolver respuesta
             return response()->json([
-                'success' => true,
                 'message' => 'Su cuenta se ha registrado con éxito.',
                 // 'user' => $user,
                 // 'role' => $roleName,

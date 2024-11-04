@@ -71,14 +71,14 @@
             @endif
 
             <br>
-            @if ($role == 'cliente')
+            @if ($role == 'client')
             <div class="content-item">
                 <p>¡Gracias por registrarte! Ahora puedes reservar tus turnos 
                     con solo un clic y disfrutar de un servicio excepcional. ¡Te esperamos 
                     en {{ env('BARBERSHOP_NAME') }} para cuidar de tu estilo!</p>
             </div>
 
-            @elseif ($role == 'peluquero')
+            @elseif ($role == 'barber')
             <div class="content-item">
                 <p>¡Bienvenido al equipo de {{ env('BARBERSHOP_NAME') }}! Tu talento y dedicación son 
                     clave para ofrecer a nuestros clientes el mejor servicio.</p>
@@ -96,7 +96,7 @@
             </div>
             @endif
 
-            @if ($role != 'cliente')
+            @if ($role != 'client')
             <div class="content-item">
                 <p class="left-align">Para comenzar, inicia sesión en tu cuenta con las siguientes credenciales:</p>
                 <p class="left-align">Correo: {{ $user->email }}</p>

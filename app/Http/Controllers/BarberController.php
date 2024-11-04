@@ -12,7 +12,7 @@ class BarberController extends Controller
     public function index()
     {
         // Obtener el ID del rol "peluquero"
-        $barberRoleId = DB::table('roles')->where('name', 'peluquero')->value('id');
+        $barberRoleId = DB::table('roles')->where('name', 'barber')->value('id');
 
         // Consultar todos los usuarios con el rol de "peluquero" y sus detalles
         $barbers = User::whereHas('profiles', function ($query) use ($barberRoleId) {

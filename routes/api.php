@@ -54,7 +54,7 @@ Route::group(['prefix' => '/', 'middleware' => 'auth:sanctum',], function () {
 /* ---------------- RUTAS CON ROLES --------------------*/
 
     // Requieren el rol 'cliente' o root
-    Route::group(['middleware' => [ CheckRole::class . ':root,cliente']], function () {
+    Route::group(['middleware' => [ CheckRole::class . ':root,client']], function () {
         // rutas reservas-cliente
         Route::get('/reservations',[ReservationController::class,'index']);
         // Route::get('/reservations/{id}',[ReservationController::class,'show']); //no
@@ -64,7 +64,7 @@ Route::group(['prefix' => '/', 'middleware' => 'auth:sanctum',], function () {
         
     });
     // Requieren el rol 'peluquero' o root
-    Route::group(['middleware' => [ CheckRole::class . ':root,peluquero']], function () {
+    Route::group(['middleware' => [ CheckRole::class . ':root,barber']], function () {
         // rutas servicios
         Route::get('/services/{id}',[ServiceController::class,'show']); 
         Route::post('/services',[ServiceController::class,'store']);
@@ -83,11 +83,11 @@ Route::group(['prefix' => '/', 'middleware' => 'auth:sanctum',], function () {
 
     });
     // Requieren el rol 'administrador' o root
-    Route::group(['middleware' => [CheckRole::class . ':root,administrador']], function () {
-        
+    Route::group(['middleware' => [CheckRole::class . ':root,admin']], function () {
+        Route::post('/register', [RegisterController::class, 'register']);  //puede seleccionar rol
     });
     // Requieren el rol 'dueño' o root
-    Route::group(['middleware' => [CheckRole::class . ':root,dueño']], function () {
+    Route::group(['middleware' => [CheckRole::class . ':root,owner']], function () {
         
     });
     // Requieren el rol 'root'
@@ -98,7 +98,7 @@ Route::group(['prefix' => '/', 'middleware' => 'auth:sanctum',], function () {
         Route::get('/users', [UserController::class, 'index']);
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
-        Route::post('/register', [RegisterController::class, 'register']);  //puede seleccionar rol
+        
         
     });
 });

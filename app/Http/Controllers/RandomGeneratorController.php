@@ -9,7 +9,7 @@ class RandomGeneratorController extends Controller
     //Generar contraseñas aleatorias
     public function generateRandomPassword($length = 12) {
         // $characters = implode('', array_merge(range('0', '9'), range('a', 'z'), range('A', 'Z'), str_split('!@#$%^&*()-_=+[]{}|;:,.<>?')));
-        $characters = implode('', array_merge(range('0', '9'), range('a', 'z'), range('A', 'Z')));
+        $characters = implode('', array_merge(range('0', '9'), range('a', 'z')));
         $charactersLength = strlen($characters);
         $randomPassword = '';
         for ($i = 0; $i < $length; $i++) {

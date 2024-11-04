@@ -47,5 +47,40 @@ class UserSeeder extends Seeder
             ]
         );
         Mail::to($rootUser->email)->send(new WelcomeEmail($rootUser, 'root', $passwordGenerado));
+
+        // Crear el usuario - PRUEBA
+        $adminUser = User::updateOrCreate([
+            'email' => 'admin@neobarber.co',
+            'name' => 'ADMIN PRUEBA',
+            'password' => bcrypt('abc12345')
+        ]);
+        $peluqueroUser = User::updateOrCreate([
+            'email' => 'peluquero@neobarber.co',
+            'name' => 'PELUQUERO PRUEBA',
+            'password' => bcrypt('abc12345'),
+        ]);    
+        $clienteUser = User::updateOrCreate([
+            'email' => 'cliente@neobarber.co',
+            'name' => 'CLIENTE PRUEBA',
+            'password' => bcrypt('abc12345'),
+        ],);
+        
+        Profile::updateOrCreate([
+            'user_id' => $adminUser->id,
+            'role_id' => 3,
+        ]);
+        Profile::updateOrCreate([
+            'user_id' => $peluqueroUser->id,
+            'role_id' => 2,
+        ]);
+        Profile::updateOrCreate([
+            'user_id' => $clienteUser->id,
+            'role_id' => 1,
+        ]); 
+        UserDetail::updateOrCreate(['user_id' => $adminUser->id]);
+        UserDetail::updateOrCreate(['user_id' => $peluqueroUser->id]);
+        UserDetail::updateOrCreate(['user_id' => $clienteUser->id]);
+        
+        
     }
 }
