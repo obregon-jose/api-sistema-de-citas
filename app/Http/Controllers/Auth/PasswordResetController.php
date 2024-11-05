@@ -112,7 +112,7 @@ class PasswordResetController extends Controller
         }
 
         return response()->json([
-            'email' => $request->email
+            // 'email' => $request->email
         ], 200);
     }
 
