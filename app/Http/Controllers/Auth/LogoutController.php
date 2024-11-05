@@ -36,7 +36,7 @@ class LogoutController extends Controller
         $user = Auth::user();
         $user->tokens()->delete();
         return response()->json([
-            'success' => true,
+            // 'success' => true,
             // 'message' => 'Sesión cerrada'
         ], 204);
     }
