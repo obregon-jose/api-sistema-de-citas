@@ -62,6 +62,8 @@ Route::group(['prefix' => '/', 'middleware' => 'auth:sanctum',], function () {
     // Route::put('/users/{id}', [UserController::class, 'update']); //revisar - se actualiza desde los detalles
     // detalles de usuario
     Route::put('/user-details/{id}', [UserDetailController::class, 'update']);
+    //Ruta para obtener los peluqueros
+    Route::get('/barbers', [BarberController::class, 'index']);
     
 /* ---------------- RUTAS CON ROLES --------------------*/
 
@@ -82,8 +84,7 @@ Route::group(['prefix' => '/', 'middleware' => 'auth:sanctum',], function () {
         Route::post('/services',[ServiceController::class,'store']);
         Route::put('/services/{id}',[ServiceController::class,'update']);
         Route::delete('/services/{id}',[ServiceController::class,'destroy']);
-        //Ruta para obtener los peluqueros
-        Route::get('/barbers', [BarberController::class, 'index']);
+        
         
         // rutas reservas-peluquero [atención]
         Route::get('/attention-quotes',[AttentionQuoteController::class,'index']);
