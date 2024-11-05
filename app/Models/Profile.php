@@ -34,4 +34,10 @@ class Profile extends Model
     {
         return $this->hasMany(AttentionQuote::class);
     }
+
+    // Relacion con dias
+    public function day()
+    {
+        return $this->hasMany(Day::class);
+    }
 }

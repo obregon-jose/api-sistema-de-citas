@@ -15,7 +15,19 @@ use App\Http\Controllers\BarberController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\TimeSlotController;
 
+// Ruta para generar franjas horarias para una semana en una agenda específica
+Route::post('{profileId}/horario/createTimeSlots', [TimeSlotController::class, 'generarFranjaSemana']);
+
+Route::get('{profileId}/horario', [TimeSlotController::class, 'TimeSlotsBarber']);
+
+Route::get('disponibilidad', [TimeSlotController::class, 'obtenerFranjasPorFecha']);
+
+// Ruta para actualizar una franja horaria específica
+//Route::put('/horario/timeSlot/{id}', [TimeSlotController::class, 'actualizarFranja']);
+// Ruta para eliminar una franja horaria específica
+Route::delete('/horario/timeSlot/{id}', [TimeSlotController::class, 'eliminarFranja']);
 
 // RUTAS PUBLICAS (No requieren autenticación)
 Route::group(['prefix' => '/',], function () {
