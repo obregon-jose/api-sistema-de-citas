@@ -103,68 +103,65 @@ class TimeSlotController extends Controller
 
     }
 
-    public function obtenerFranjasPorFecha(Request $request)
-    {
+    public function obtenerFranjasPorFecha($profile_id, $fecha)
+{
     try {
-        $request->validate([
-            'fecha' => 'required|date_format:Y-m-d',
-        ]);
-
-        $fecha = $request->input('fecha');
-        $day = Day::where('fecha', $fecha)->first();
-
-        if (!$day) {
-            return response()->json(['message' => 'No se encontraron franjas horarias para esta fecha.'], 404);
+        // Validación de los parámetros
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
+            return response()->json(['message' => 'Formato de fecha inválido.'], 422);
         }
 
-        $timeSlots = TimeSlot::where('day_id', $day->id)->get(['hour_start', 'hour_end', 'available']);
+        // Busca el día correspondiente para la fecha y el perfil del peluquero
+        $day = Day::where('fecha', $fecha)
+            ->where('profile_id', $profile_id)
+            ->first();
+
+        // Verifica si el día existe
+        if (!$day) {
+            return response()->json(['message' => 'No se encontraron horarios para esta fecha y peluquero.'], 404);
+        }
+
+        // Obtén las franjas horarias (TimeSlots) para el día específico
+        $timeSlots = TimeSlot::where('day_id', $day->id)
+            ->where('available', true)  // Solo franjas disponibles
+            ->get(['hour_start', 'hour_end', 'available']);
 
         return response()->json([
             'fecha' => $day->fecha,
             'dia' => $day->name,
             'franjas' => $timeSlots,
         ], 200);
-    } catch (\Exception) {
+
+    } catch (\Exception $e) {
         return response()->json(['message' => 'Error interno del servidor.'], 500);
     }
+}
+
+
+    public function ocuparFranja(Request $request)
+{
+    // Validar que el ID de la franja horaria está presente y es numérico
+    $request->validate([
+        'id' => 'required|integer|exists:time_slots,id',
+    ]);
+
+    // Obtener el ID de la franja horaria
+    $id = $request->input('id');
+
+    // Buscar la franja horaria correspondiente
+    $timeSlot = TimeSlot::find($id);
+
+    // Verificar si la franja ya está ocupada
+    if (!$timeSlot->available) {
+        return response()->json(['message' => 'Esta franja ya está ocupada.'], 400);
     }
 
+    // Marcar la franja como ocupada
+    $timeSlot->available = false;
+    $timeSlot->save();
 
-    // public function actualizarFranja(Request $request, $id)
-    // {
-    // // Validar los datos de entrada
-    // $request->validate([
-    //     'fecha' => 'required|date_format:Y-m-d',
-    //     'hora_inicio' => 'required|date_format:H:i',
-    //     'estado' => 'required|boolean',
-    // ]);
-
-    // // Obtener la fecha y la hora de inicio desde el request
-    // $fecha = $request->input('fecha');
-    // $horaInicio = $request->input('hora_inicio');
-
-    // // Buscar el día correspondiente a la fecha dada
-    // $day = Day::where('fecha', $fecha)->first();
-
-    // if (!$day) {
-    //     return response()->json(['message' => 'No se encontró el día para la fecha proporcionada.'], 404);
-    // }
-
-    // // Buscar la franja horaria por su ID y día correspondiente
-    // $timeSlot = TimeSlot::where('id', $id)->where('day_id', $day->id)->first();
-
-    // if (!$timeSlot) {
-    //     return response()->json(['message' => 'No se encontró la franja horaria para la fecha y hora especificadas.'], 404);
-    // }
-
-    // // Actualizar los datos de la franja horaria
-    // $timeSlot->available = $request->input('estado');
-
-    // // Guardar los cambios
-    // $timeSlot->save();
-
-    // return response()->json(['message' => 'Franja horaria actualizada con éxito', 'data' => $timeSlot], 200);
-    // }
+    return response()->json(['message' => 'Franja horaria ocupada exitosamente.'], 200);
+}
 
 
     /**

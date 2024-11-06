@@ -34,7 +34,9 @@ Route::group(['prefix' => '/',], function () {
 
     Route::get('{profileId}/horario', [TimeSlotController::class, 'TimeSlotsBarber']);
 
-    Route::get('disponibilidad', [TimeSlotController::class, 'obtenerFranjasPorFecha']);
+    Route::get('barbero/{profile_id}/disponibilidad/{fecha}', [TimeSlotController::class, 'obtenerFranjasPorFecha']);
+
+    Route::post('barbero/{profile_id}/disponibilidad/{fecha}/franjas', [TimeSlotController::class, 'ocuparFranja']); //Revisar ruta
 
     // Ruta para actualizar una franja horaria específica
     //Route::put('/horario/timeSlot/{id}', [TimeSlotController::class, 'actualizarFranja']);
