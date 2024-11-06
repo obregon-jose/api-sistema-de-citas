@@ -9,25 +9,12 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\UserDetailController;
-use App\Http\Controllers\User\UpdatePasswordController;
 use App\Http\Controllers\AttentionQuoteController;
 use App\Http\Controllers\BarberController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TimeSlotController;
-
-// Ruta para generar franjas horarias para una semana en una agenda específica
-Route::post('{profileId}/horario/createTimeSlots', [TimeSlotController::class, 'generarFranjaSemana']);
-
-Route::get('{profileId}/horario', [TimeSlotController::class, 'TimeSlotsBarber']);
-
-Route::get('disponibilidad', [TimeSlotController::class, 'obtenerFranjasPorFecha']);
-
-// Ruta para actualizar una franja horaria específica
-//Route::put('/horario/timeSlot/{id}', [TimeSlotController::class, 'actualizarFranja']);
-// Ruta para eliminar una franja horaria específica
-Route::delete('/horario/timeSlot/{id}', [TimeSlotController::class, 'eliminarFranja']);
 
 // RUTAS PUBLICAS (No requieren autenticación)
 Route::group(['prefix' => '/',], function () {
@@ -40,6 +27,19 @@ Route::group(['prefix' => '/',], function () {
 
     // Mostrar servicios
     Route::get('/services',[ServiceController::class,'index']);
+
+    //REVISAR
+    // Ruta para generar franjas horarias para una semana en una agenda específica
+    Route::post('{profileId}/horario/createTimeSlots', [TimeSlotController::class, 'generarFranjaSemana']);
+
+    Route::get('{profileId}/horario', [TimeSlotController::class, 'TimeSlotsBarber']);
+
+    Route::get('disponibilidad', [TimeSlotController::class, 'obtenerFranjasPorFecha']);
+
+    // Ruta para actualizar una franja horaria específica
+    //Route::put('/horario/timeSlot/{id}', [TimeSlotController::class, 'actualizarFranja']);
+    // Ruta para eliminar una franja horaria específica
+    Route::delete('/horario/timeSlot/{id}', [TimeSlotController::class, 'eliminarFranja']);
 
     Route::post('/subir-imagen/{id}', [UserDetailController::class, 'uploadImage']); //revisar
 });
@@ -67,8 +67,8 @@ Route::group(['prefix' => '/', 'middleware' => 'auth:sanctum',], function () {
     
 /* ---------------- RUTAS CON ROLES --------------------*/
 
-    // Requieren el rol 'cliente' o root
-    Route::group(['middleware' => [ CheckRole::class . ':root,cliente']], function () {
+    // Requieren el rol 'cliente' 
+    Route::group(['middleware' => [ CheckRole::class . ':cliente']], function () {
         // rutas reservas-cliente
         Route::get('/reservations',[ReservationController::class,'index']);
         // Route::get('/reservations/{id}',[ReservationController::class,'show']); //no
@@ -77,46 +77,45 @@ Route::group(['prefix' => '/', 'middleware' => 'auth:sanctum',], function () {
         Route::delete('/reservations/{id}',[ReservationController::class,'destroy']);
         
     });
-    // Requieren el rol 'peluquero' o root
-    Route::group(['middleware' => [ CheckRole::class . ':root,peluquero']], function () {
+
+    // Requieren el rol 'peluquero' o 'administrador'
+    Route::group(['middleware' => [ CheckRole::class . ':peluquero,administrador']], function () {
         // rutas servicios
         Route::get('/services/{id}',[ServiceController::class,'show']); 
         Route::post('/services',[ServiceController::class,'store']);
         Route::put('/services/{id}',[ServiceController::class,'update']);
         Route::delete('/services/{id}',[ServiceController::class,'destroy']);
-        
-        
         // rutas reservas-peluquero [atención]
         Route::get('/attention-quotes',[AttentionQuoteController::class,'index']);
         // Route::get('/attention-quotes/{id}',[AttentionQuoteController::class,'show']);
         Route::post('/attention-quotes',[AttentionQuoteController::class,'store']);
         Route::put('/attention-quotes/{id}',[AttentionQuoteController::class,'update']);
         Route::delete('/attention-quotes/{id}',[AttentionQuoteController::class,'destroy']);
-
-
     });
-    // Requieren el rol 'administrador' o root
+
+    // Requieren el rol 'administrador' o 'root'
     Route::group(['middleware' => [CheckRole::class . ':root,administrador']], function () {
-        Route::post('/register', [RegisterController::class, 'register']);  //puede seleccionar rol
+        
     });
-    // Requieren el rol 'dueño' o root
+
+    // Requieren el rol 'dueño' o 'root'
     Route::group(['middleware' => [CheckRole::class . ':root,dueño']], function () {
         
     });
+
     // Requieren el rol 'root'
     Route::group(['middleware' => [CheckRole::class . ':root']], function () {
-        //
-        
         // rutas usuarios
         Route::get('/users', [UserController::class, 'index']);
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
-
-        
-        
     });
+
+    //
     Route::group(['middleware' => [CheckRole::class . ':root,dueño,administrador,peluquero']], function () {
         Route::get('/roles', [RoleController::class, 'index']);
+        Route::post('/register', [RegisterController::class, 'register']);  //puede seleccionar rol
     });
+
 });
 
 Route::get('/', function () {
