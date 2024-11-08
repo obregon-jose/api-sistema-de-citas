@@ -60,6 +60,7 @@ class UserDetailController extends Controller
             ], 400); 
         }
     }
+    
 
     public function uploadImage(Request $request, $user_id)
     {
