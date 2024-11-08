@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Models\Profile;
 use App\Models\Day;
 use App\Models\TimeSlot;
@@ -12,70 +13,62 @@ class TimeSlotController extends Controller
 
     public function generarFranjaSemana(Request $request, $profileId)
 {
-   // Validar los datos de entrada
+    // Validar el formato del cuerpo de la solicitud
     $request->validate([
-       'horas_inicio' => 'required|array', // Validar que se recibe un array de horas de inicio
-       'horas_inicio.*' => 'date_format:H:i', // Validar que cada hora sea un formato de hora válido (ej. '09:00')
-       'dias' => 'required|array', // Validar que se recibe un array de días
-       'dias.*' => 'string', // Validar que cada día del array sea un string
+        '*' => 'array', // Las claves son días y apuntan a arreglos de horarios
+        '*.0' => 'date_format:H:i', // Cada horario debe tener el formato H:i
     ]);
 
     // Validar que el perfil existe
     $profile = Profile::find($profileId);
     if (!$profile) {
-        return Response()->json(['message' => 'El perfil no existe.'], 404);
+        return response()->json(['message' => 'El perfil no existe.'], 404);
     }
 
     try {
-        // Obtener los días y las horas de inicio desde la solicitud
-        $diasSemana = $request->input('dias');
-        $horasInicio = $request->input('horas_inicio');
+        $diasHorarios = $request->all();
         $tamanoFranja = 30; // Tamaño de la franja en minutos
 
         // Configurar el rango de fechas desde hoy hasta el 31 de diciembre del presente año
         $fechaInicio = now();
         $fechaFin = now()->endOfYear();
 
-        // Generar días y sus franjas horarias en el rango de fechas
-        for ($fecha = $fechaInicio; $fecha->lte($fechaFin); $fecha->addDay()) {
-            $diaNombre = $fecha->format('l'); // Nombre del día en inglés (ej. 'Monday', 'Tuesday')
-            
-            // Convertir a español si se requiere
-            $diasEnInglesAEspanol = [
-                'Monday' => 'Lunes', 'Tuesday' => 'Martes', 'Wednesday' => 'Miercoles',
-                'Thursday' => 'Jueves', 'Friday' => 'Viernes', 'Saturday' => 'Sabado', 'Sunday' => 'Domingo'
-            ];
-            $diaNombreEspanol = $diasEnInglesAEspanol[$diaNombre] ?? null;
+        // Mapa de días en inglés a español
+        $diasEnInglesAEspanol = [
+            'Monday' => 'LUNES', 'Tuesday' => 'MARTES', 'Wednesday' => 'MIERCOLES',
+            'Thursday' => 'JUEVES', 'Friday' => 'VIERNES', 'Saturday' => 'SABADO', 'Sunday' => 'DOMINGO'
+        ];
 
-            if (in_array($diaNombreEspanol, $diasSemana)) {
+        // Iterar por el rango de fechas
+        for ($fecha = $fechaInicio; $fecha->lte($fechaFin); $fecha->addDay()) {
+            $diaNombre = $fecha->format('l'); // Día en inglés
+            $diaNombreSolicitud = $diasEnInglesAEspanol[$diaNombre] ?? null;
+
+            if ($diaNombreSolicitud && isset($diasHorarios[$diaNombreSolicitud])) {
                 // Crear el día asociado al perfil si no existe
                 $day = Day::firstOrCreate([
-                    'profile_id' => $profileId,            // Asegura que se incluya profile_id
-                    'name' => $diaNombreEspanol,
-                    'fecha' => $fecha->format('Y-m-d'),     // Asegura que se incluya la fecha
-                ]);                
-                foreach ($horasInicio as $horaInicio) {
-                    // Generar la primera franja horaria de 30 minutos
+                    'profile_id' => $profileId,
+                    'name' => $diaNombreSolicitud,
+                    'fecha' => $fecha->format('Y-m-d'),
+                ]);
+
+                // Generar franjas horarias
+                foreach ($diasHorarios[$diaNombreSolicitud] as $horaInicio) {
                     $horaInicioTimestamp = strtotime($horaInicio);
-                    $horaFin1 = date("H:i", strtotime("+$tamanoFranja minutes", $horaInicioTimestamp));
 
-                    TimeSlot::create([
-                        'day_id' => $day->id,
-                        'hour_start' => $horaInicio,
-                        'hour_end' => $horaFin1,
-                        'available' => true,
-                    ]);
+                    // Crear franjas en función del tamaño configurado
+                    for ($i = 0; $i < 2; $i++) { // Cambiar este "2" si se requiere más franjas
+                        $horaFin = date("H:i", strtotime("+$tamanoFranja minutes", $horaInicioTimestamp));
 
-                    // Generar la segunda franja horaria consecutiva
-                    $horaInicio2 = $horaFin1;
-                    $horaFin2 = date("H:i", strtotime("+$tamanoFranja minutes", strtotime($horaInicio2)));
+                        TimeSlot::create([
+                            'day_id' => $day->id,
+                            'hour_start' => date("H:i", $horaInicioTimestamp),
+                            'hour_end' => $horaFin,
+                            'available' => true,
+                        ]);
 
-                    TimeSlot::create([
-                        'day_id' => $day->id,
-                        'hour_start' => $horaInicio2,
-                        'hour_end' => $horaFin2,
-                        'available' => true,
-                    ]);
+                        $horaInicioTimestamp = strtotime($horaFin);
+                    }
                 }
             }
         }
@@ -88,7 +81,9 @@ class TimeSlotController extends Controller
             'error' => $err->getMessage(),
         ], 500);
     }
-    }
+}
+
+
 
     public function TimeSlotsBarber($id)
     { 
