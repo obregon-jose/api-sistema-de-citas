@@ -31,13 +31,13 @@ class ReservationController extends Controller
                 //cita
                 'client_name' => 'nullable|string',
                 'barber_id' => 'required|exists:users,id',
-                'service_details' => 'required|string',
+                'service_details' => 'required|json',
                 'total_paid' => 'required|integer',
                 //reserva
                 'client_id' => 'required|exists:users,id',
                 'date' => 'required|date',
-                'time'  => 'required|date_format:H:i',
-                'end_time'  => 'required|date_format:H:i',
+                'time'  => 'required',
+                // 'end_time'  => 'date_format:H:i',
                 'status' => 'sometimes|in:1,pending', // Siempre queda pendiente?
             ]);
 

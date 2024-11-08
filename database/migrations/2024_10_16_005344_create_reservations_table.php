@@ -16,12 +16,12 @@ return new class extends Migration
             $table->foreignId('client_id')->nullable()->constrained('profiles', 'user_id')->onDelete('cascade');
             $table->date('date');
             $table->time('time');
-            $table->time('end_time');
+            // $table->time('end_time');
             $table->enum('status', ['pending', 'completed', 'cancelled'])->default('pending');
             $table->string('note')->nullable();
             $table->foreignId('quote_id')->constrained('attention_quotes', 'id')->onDelete('cascade');
-            // $table->unique(['date', 'time','end_time']);
-            $table->unique(['client_id', 'date', 'time','end_time']);
+            $table->unique(['date', 'time']);
+            // $table->unique(['client_id', 'date', 'time']);
             $table->timestamps();
         });
     }
