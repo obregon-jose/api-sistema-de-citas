@@ -38,6 +38,8 @@ Route::group(['prefix' => '/',], function () {
 
     Route::post('barbero/{profile_id}/disponibilidad/{fecha}/franjas', [TimeSlotController::class, 'ocuparFranja']); //Revisar ruta
 
+    Route::put('{profile_id}/franjas/actualizar', [TimeSlotController::class, 'actualizarFranjasPorFecha']);
+
     // Ruta para actualizar una franja horaria específica
     //Route::put('/horario/timeSlot/{id}', [TimeSlotController::class, 'actualizarFranja']);
     // Ruta para eliminar una franja horaria específica
