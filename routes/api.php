@@ -66,6 +66,9 @@ Route::group(['prefix' => '/', 'middleware' => 'auth:sanctum',], function () {
     Route::put('/user-details/{id}', [UserDetailController::class, 'update']);
     //Ruta para obtener los peluqueros
     Route::get('/barbers', [BarberController::class, 'index']);
+    // reservaciones activas[pendientes]
+    Route::get('/reservations-client/{id}', [ReservationController::class, 'showReservationsClient']);
+    Route::get('/reservations-barber/{id}', [ReservationController::class, 'showReservationsBarber']);
     
 /* ---------------- RUTAS CON ROLES --------------------*/
 

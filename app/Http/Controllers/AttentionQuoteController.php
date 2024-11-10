@@ -89,7 +89,7 @@ class AttentionQuoteController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(AttentionQuote $attentionQuote)
+    public function show($id)
     {
         //
     }

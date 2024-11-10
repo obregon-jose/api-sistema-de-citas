@@ -55,7 +55,10 @@ class ReservationController extends Controller
             // crear la reserva
             $reservation = Reservation::create($validatedData);
 
-            // $roleName = Role::find($defaultRoleId)->name;
+            //NOTA: Código para actualizar la disponibilidad del barbero
+            ////////////////////////////////////////////////////////////////////////////////////
+
+            ////////////////////////////////////////////////////////////////////////////////////
             
             // Enviar correo 
             // Mail::to($user->email)->send(new WelcomeEmail($user, $roleName, $passwordGenerado ?? ''));
@@ -63,8 +66,8 @@ class ReservationController extends Controller
             // Devolver respuesta
             return response()->json([
                 'message' => 'Su Reserva se a generado con éxito',
-                'reservation' => $reservation,
-                'quote' => $attentionQuote,
+                // 'reservation' => $reservation,
+                // 'quote' => $attentionQuote,
             ], 201);
      
         } catch (\Exception $e) {
@@ -78,9 +81,40 @@ class ReservationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Reservation $reservation)
+    public function showReservationsClient($clientId)
     {
-        //
+        $pendingReservations = Reservation::where('client_id', $clientId)
+        //->where('status', 'pending') // Filtrar por estado "pending"
+        ->with('attentionQuote') // Cargar la relación de atención
+        ->get();
+
+        // Decodificar el campo service_details en la relación attentionQuote
+        $pendingReservations->each(function ($reservation) {
+            if ($reservation->attentionQuote) {
+                $reservation->attentionQuote->service_details = json_decode($reservation->attentionQuote->service_details);
+            }
+        });
+
+        return response()->json([
+            'reservations' => $pendingReservations,
+        ], 200);
+    
+    }
+
+    public function showReservationsBarber($barberId)
+    {
+        $pendingReservations = AttentionQuote::where('barber_id', $barberId)
+        ->where('status', 'pending') // Filtrar por estado "pending"
+        ->with('reservation') // Cargar la relación de atención
+        ->get();
+        // Decodificar el campo service_details
+        $pendingReservations->each(function ($reservation) {
+            $reservation->service_details = json_decode($reservation->service_details);
+        });
+
+        return response()->json([
+            'reservationsPending' => $pendingReservations,
+        ], 200);
     }
 
     /**

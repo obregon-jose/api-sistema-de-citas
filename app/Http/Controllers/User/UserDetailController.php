@@ -68,8 +68,8 @@ class UserDetailController extends Controller
             $image = $request->file('image');
 
             $imageName = Str::random(10) . '.png';
-            $filePath = "images/perfiles/{$user_id}/" . $imageName;
-            $userDetail = UserDetail::where('user_id', $user_id)->first(); //2
+            $filePath = "images/perfiles/" . $imageName;
+            $userDetail = UserDetail::where('user_id', $user_id)->first();
             if ($userDetail && $userDetail->photo) {
                 $oldImagePath = str_replace(asset('storage/'), '', $userDetail->photo);
                 if (Storage::disk('public')->exists($oldImagePath)) {

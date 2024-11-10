@@ -64,6 +64,8 @@ class LoginController extends Controller
             $role = $user->profiles()->first()->role()->where('status', true)->first()->name ?? null;
 
             return response()->json([
+                // 'id' => $user->id,
+                // 'name' => $user->name,
                 'role' => $role,
                 'token' => $token, 
             ], 200);
