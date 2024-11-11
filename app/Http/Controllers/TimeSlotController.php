@@ -133,30 +133,43 @@ class TimeSlotController extends Controller
 }
 
 
-    public function ocuparFranja(Request $request)
+public function ocuparFranja(Request $request)
 {
-    // Validar que el ID de la franja horaria está presente y es numérico
+    // Validar que los campos date y hour_start están presentes y tienen el formato correcto
     $request->validate([
-        'id' => 'required|integer|exists:time_slots,id',
+        'barber_id' => 'required',
+        'date' => 'required|date_format:Y-m-d',
+        'time' => 'required',
     ]);
 
-    // Obtener el ID de la franja horaria
-    $id = $request->input('id');
+    // Obtener la fecha y la hora de inicio desde la solicitud
+    $date = $request->input('date');
+    $hourStart = $request->input('time');
 
-    // Buscar la franja horaria correspondiente
-    $timeSlot = TimeSlot::find($id);
+    // Buscar el día correspondiente usando la fecha
+    $day = Day::where('profile_id',$request->barber_id)
+                ->where('fecha', $date)
+                ->first();
 
-    // Verificar si la franja ya está ocupada
-    if (!$timeSlot->available) {
-        return response()->json(['message' => 'Esta franja ya está ocupada.'], 400);
+    if (!$day) {
+        return response()->json(['message' => 'No se encontró el día para la fecha proporcionada.'], 404);
+    }
+
+    // Buscar la franja horaria usando el día y la hora de inicio
+    $timeSlot = TimeSlot::where('day_id', $day->id)
+                        ->where('hour_start', $hourStart)
+                        ->first();
+
+    if (!$timeSlot) {
+        return response()->json(['message' => 'No se encontró la franja horaria para la fecha y hora proporcionadas.'], 404);
     }
 
     // Marcar la franja como ocupada
     $timeSlot->available = false;
     $timeSlot->save();
 
-    return response()->json(['message' => 'Franja horaria ocupada exitosamente.'], 200);
 }
+
 
 
     /**

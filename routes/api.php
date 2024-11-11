@@ -36,7 +36,7 @@ Route::group(['prefix' => '/',], function () {
 
     Route::get('barbero/{profile_id}/disponibilidad/{fecha}', [TimeSlotController::class, 'obtenerFranjasPorFecha']);
 
-    Route::post('barbero/{profile_id}/disponibilidad/{fecha}/franjas', [TimeSlotController::class, 'ocuparFranja']); //Revisar ruta
+    Route::post('barbero/disponibilidad/', [TimeSlotController::class, 'ocuparFranja']); //Revisar ruta
 
     Route::put('{profile_id}/franjas/actualizar', [TimeSlotController::class, 'actualizarFranjasPorFecha']);
 

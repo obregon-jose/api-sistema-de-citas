@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\AttentionQuote;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
+use App\Models\Day;
+use App\Models\TimeSlot;
 
 class ReservationController extends Controller
 {
@@ -57,7 +59,31 @@ class ReservationController extends Controller
 
             //NOTA: Código para actualizar la disponibilidad del barbero
             ////////////////////////////////////////////////////////////////////////////////////
+            // Obtener la fecha y la hora de inicio desde la solicitud
+            $date = $request->input('date');
+            $hourStart = $request->input('time');
 
+            // Buscar el día correspondiente usando la fecha
+            $day = Day::where('profile_id',$request->barber_id)
+                        ->where('fecha', $date)
+                        ->first();
+
+            if (!$day) {
+                return response()->json(['message' => 'No se encontró el día para la fecha proporcionada.'], 404);
+            }
+
+            // Buscar la franja horaria usando el día y la hora de inicio
+            $timeSlot = TimeSlot::where('day_id', $day->id)
+                                ->where('hour_start', $hourStart)
+                                ->first();
+
+            if (!$timeSlot) {
+                return response()->json(['message' => 'No se encontró la franja horaria para la fecha y hora proporcionadas.'], 404);
+            }
+
+            // Marcar la franja como ocupada
+            $timeSlot->available = false;
+            $timeSlot->save();
             ////////////////////////////////////////////////////////////////////////////////////
             
             // Enviar correo 
@@ -69,7 +95,7 @@ class ReservationController extends Controller
                 // 'reservation' => $reservation,
                 // 'quote' => $attentionQuote,
             ], 201);
-     
+    
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',
