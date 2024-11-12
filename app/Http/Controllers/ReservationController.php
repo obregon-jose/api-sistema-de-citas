@@ -68,18 +68,18 @@ class ReservationController extends Controller
                         ->where('fecha', $date)
                         ->first();
 
-            if (!$day) {
-                return response()->json(['message' => 'No se encontró el día para la fecha proporcionada.'], 404);
-            }
+            // if (!$day) {
+            //     return response()->json(['message' => 'No se encontró el día para la fecha proporcionada.'], 404);
+            // }
 
             // Buscar la franja horaria usando el día y la hora de inicio
             $timeSlot = TimeSlot::where('day_id', $day->id)
                                 ->where('hour_start', $hourStart)
                                 ->first();
 
-            if (!$timeSlot) {
-                return response()->json(['message' => 'No se encontró la franja horaria para la fecha y hora proporcionadas.'], 404);
-            }
+            // if (!$timeSlot) {
+            //     return response()->json(['message' => 'No se encontró la franja horaria para la fecha y hora proporcionadas.'], 404);
+            // }
 
             // Marcar la franja como ocupada
             $timeSlot->available = false;
