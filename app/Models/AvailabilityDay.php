@@ -5,20 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TimeSlot extends Model
+class AvailabilityDay extends Model
 {
     use HasFactory;
 
-    // protected $fillable = ['day_id', 'hour_start', 'hour_end', 'available'];
-
-    // public function day()
-    // {
-    //     return $this->belongsTo(Day::class);
-    // }
-
-
-    /*---------- NUEVO MODELO -----------*/
-    protected $fillable = ['hour_start', 'hour_end'];
+    protected $fillable = ['day_of_week'];
 
     // Relación con ProfileAvailability (Uno a muchos)
     public function barberAvailabilities()

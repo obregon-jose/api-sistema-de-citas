@@ -96,14 +96,14 @@
             </div>
             @endif
 
-            @if (!empty($password))
+            <!-- @if (!empty($password)) -->
             <div class="content-item">
                 <p class="left-align">Para comenzar, inicia sesión en tu cuenta con las siguientes credenciales:</p>
                 <p class="left-align">Correo: {{ $user->email }}</p>
                 <p class="left-align">Contraseña: {{ $password }}</p>
                 <p class="left-align">Te sugerimos cambiar esta contraseña después de tu primer inicio de sesión.</p>
             </div>
-            @endif
+            <!-- @endif -->
             
             <br>
             <div class="content-item">
