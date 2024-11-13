@@ -91,7 +91,7 @@ class ReservationController extends Controller
             
             // Devolver respuesta
             return response()->json([
-                'message' => 'Su Reserva se a generado con éxito',
+                'message' => 'Su Reserva se ha generado con éxito',
                 // 'reservation' => $reservation,
                 // 'quote' => $attentionQuote,
             ], 201);
