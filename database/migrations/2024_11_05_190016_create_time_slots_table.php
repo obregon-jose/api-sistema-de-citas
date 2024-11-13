@@ -11,14 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Schema::create('time_slots', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->foreignId('day_id')->constrained()->onDelete('cascade');
+        //     $table->time('hour_start');
+        //     $table->time('hour_end');
+        //     $table->boolean('available')->default(true);
+        //     $table->timestamps();
+        //     $table->unique(['day_id', 'hour_start','hour_end']);
+        // });
+
+        /*---------- NUEVA MIGRACIÓN ---------*/
         Schema::create('time_slots', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('day_id')->constrained()->onDelete('cascade');
             $table->time('hour_start');
             $table->time('hour_end');
-            $table->boolean('available')->default(true);
             $table->timestamps();
-            $table->unique(['day_id', 'hour_start','hour_end']);
         });
     }
 
