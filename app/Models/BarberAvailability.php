@@ -18,16 +18,4 @@ class BarberAvailability extends Model
         return $this->belongsTo(Profile::class);
     }
 
-    // Relación con el modelo TimeSlot
-    public function timeSlot()
-    {
-        return $this->belongsTo(TimeSlot::class);
-    }
-
-    // Relación con el modelo AvailabilityDay
-    public function day()
-    {
-        return $this->belongsTo(AvailabilityDay::class);
-    }
-
 }
