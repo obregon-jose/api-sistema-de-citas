@@ -9,23 +9,23 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    // public function up(): void
-    // {
-    //     Schema::create('days', function (Blueprint $table) {
-    //         $table->id();
-    //         $table->foreignId('profile_id')->constrained()->onDelete('cascade');
-    //         $table->date('fecha');
-    //         $table->enum('name', ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo']);
-    //         $table->timestamps();
-    //         $table->unique(['profile_id', 'fecha']);
-    //     });
-    // }
+    public function up(): void
+    {
+        Schema::create('days', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('profile_id')->constrained()->onDelete('cascade');
+            $table->date('fecha');
+            $table->enum('name', ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo']);
+            $table->timestamps();
+            $table->unique(['profile_id', 'fecha']);
+        });
+    }
 
     /**
      * Reverse the migrations.
      */
-    // public function down(): void
-    // {
-    //     Schema::dropIfExists('days');
-    // }
+    public function down(): void
+    {
+        Schema::dropIfExists('days');
+    }
 };
