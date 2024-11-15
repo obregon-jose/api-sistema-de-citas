@@ -14,10 +14,8 @@ return new class extends Migration
         Schema::create('barber_availabilities', function (Blueprint $table) {
             $table->id();
             $table->foreignId('profile_id')->constrained()->onDelete('cascade');
-            
-            // $table->foreignId('day_id')->constrained('availability_days')->onDelete('cascade');
-            $table->json('time_slot_id')->constrained('time_slots')->onDelete('cascade');
-            //$table->boolean('status')->default(false); // Por defecto, inactivo
+            $table->date('week_start_date');
+            $table->json('agenda');
             $table->timestamps();
         });
     }

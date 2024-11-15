@@ -6,6 +6,7 @@ use App\Models\AttentionQuote;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
 use App\Models\Day;
+use App\Models\Profile;
 use App\Models\TimeSlot;
 
 class ReservationController extends Controller
@@ -91,7 +92,7 @@ class ReservationController extends Controller
             
             // Devolver respuesta
             return response()->json([
-                'message' => 'Su Reserva se a generado con éxito',
+                'message' => 'Su Reserva se ha generado con éxito',
                 // 'reservation' => $reservation,
                 // 'quote' => $attentionQuote,
             ], 201);
@@ -113,15 +114,25 @@ class ReservationController extends Controller
         //->where('status', 'pending') // Filtrar por estado "pending"
         ->with('attentionQuote') // Cargar la relación de atención
         ->get();
-
+        
         // Decodificar el campo service_details en la relación attentionQuote
         $pendingReservations->each(function ($reservation) {
             if ($reservation->attentionQuote) {
                 $reservation->attentionQuote->service_details = json_decode($reservation->attentionQuote->service_details);
+                // Obtener el nombre del barbero a través de la relación attentionQuote
+            $barber = Profile::where('user_id', $reservation->attentionQuote->barber_id)->first();
+            if ($barber) {
+                $reservation->barber_name = $barber->user->name;
+            } else {
+                $reservation->barber_name = null;
             }
+            }
+            
         });
+        // $barber = Profile::where('user_id', $pendingReservations->attentionQuote->barber_id)->first();
 
         return response()->json([
+            // 'barber' => $barber,
             'reservations' => $pendingReservations,
         ], 200);
     

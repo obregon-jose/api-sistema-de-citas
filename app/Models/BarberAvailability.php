@@ -9,8 +9,7 @@ class BarberAvailability extends Model
 {
     use HasFactory;
 
-    // protected $fillable = ['profile_id', 'day_id', 'time_slot_id', 'status'];
-    protected $fillable = ['profile_id', 'time_slot_id'];
+    protected $fillable = ['profile_id', 'agenda', 'week_start_date'];
 
     // Relación con el modelo Profile
     public function profile()
