@@ -223,6 +223,7 @@ class BarberController extends Controller
     /*************************************************************************/
 
     // Actualizar la disponibilidad de un perfil en un rango de fechas
+
     public function updateAvailability($profile_id, $startDate, $endDate, Request $request)
     {
         $days = [
@@ -234,78 +235,82 @@ class BarberController extends Controller
             5 => 'Viernes',
             6 => 'Sábado'
         ];
-
+    
         // Obtener la agenda del JSON de entrada
         $availabilityInput = $request->input('agenda', []);
-
+    
         // Convertir las fechas de inicio y fin
         $startDate = Carbon::parse($startDate);
         $endDate = Carbon::parse($endDate);
-
+    
         // Iterar sobre cada semana entre startDate y endDate
         $currentWeekStart = $startDate->copy()->startOfWeek();
-
+    
         while ($currentWeekStart->lte($endDate)) {
             // Buscar o crear el registro de disponibilidad para la semana actual
             $availability = BarberAvailability::firstOrNew([
                 'profile_id' => $profile_id,
                 'week_start_date' => $currentWeekStart->toDateString()
             ]);
-
+    
             // Cargar la disponibilidad semanal existente, o iniciar una nueva estructura
             $existingWeeklyAvailability = $availability->exists ? json_decode($availability->agenda, true) : [];
-
+    
             // Iterar sobre los 7 días de la semana actual
             for ($i = 0; $i < 7; $i++) {
                 $day = $currentWeekStart->copy()->addDays($i);
-                $dayOfWeek = $day->dayOfWeek;
-                $dayName = $days[$dayOfWeek];
-
-                // Si hay datos en el JSON de entrada para este día, procesarlos
-                if (isset($availabilityInput[$dayName])) {
-                    // Asegurar que la estructura del día exista en la disponibilidad actual
-                    if (!isset($existingWeeklyAvailability[$dayName])) {
-                        $existingWeeklyAvailability[$dayName] = [
-                            'date' => $day->toDateString(),	
-                            'time_slots' => [],
-                            'availability' => false
-                        ];
-                    }
-
-                    // Actualizar los time_slots específicos para el día
-                    $newTimeSlots = $availabilityInput[$dayName]['time_slots'];
-                    foreach ($newTimeSlots as $newSlot) {
-                        $found = false;
-                        foreach ($existingWeeklyAvailability[$dayName]['time_slots'] as &$existingSlot) {
-                            if ($existingSlot['id'] === $newSlot['id']) {
-                                $existingSlot['status'] = $newSlot['status'];
-                                $found = true;
-                                break;
+    
+                // Solo proceder si el día está dentro del rango de startDate y endDate
+                if ($day->between($startDate, $endDate)) {
+                    $dayOfWeek = $day->dayOfWeek;
+                    $dayName = $days[$dayOfWeek];
+    
+                    // Si hay datos en el JSON de entrada para este día, procesarlos
+                    if (isset($availabilityInput[$dayName])) {
+                        // Asegurar que la estructura del día exista en la disponibilidad actual
+                        if (!isset($existingWeeklyAvailability[$dayName])) {
+                            $existingWeeklyAvailability[$dayName] = [
+                                'date' => $day->toDateString(),
+                                'time_slots' => [],
+                                'availability' => false
+                            ];
+                        }
+    
+                        // Actualizar los time_slots específicos para el día
+                        $newTimeSlots = $availabilityInput[$dayName]['time_slots'];
+                        foreach ($newTimeSlots as $newSlot) {
+                            $found = false;
+                            foreach ($existingWeeklyAvailability[$dayName]['time_slots'] as &$existingSlot) {
+                                if ($existingSlot['id'] === $newSlot['id']) {
+                                    $existingSlot['status'] = $newSlot['status'];
+                                    $found = true;
+                                    break;
+                                }
+                            }
+    
+                            if (!$found) {
+                                $existingWeeklyAvailability[$dayName]['time_slots'][] = $newSlot;
                             }
                         }
-
-                        if (!$found) {
-                            $existingWeeklyAvailability[$dayName]['time_slots'][] = $newSlot;
+    
+                        // Actualizar el estado general de disponibilidad del día
+                        if (isset($availabilityInput[$dayName]['availability'])) {
+                            $existingWeeklyAvailability[$dayName]['availability'] = $availabilityInput[$dayName]['availability'];
                         }
-                    }
-
-                    // Actualizar el estado general de disponibilidad del día
-                    if (isset($availabilityInput[$dayName]['availability'])) {
-                        $existingWeeklyAvailability[$dayName]['availability'] = $availabilityInput[$dayName]['availability'];
                     }
                 }
             }
-
+    
             // Guardar el estado de la agenda actualizado en la base de datos
             $availability->agenda = json_encode($existingWeeklyAvailability);
             $availability->save();
-
+    
             // Avanzar al inicio de la siguiente semana
             $currentWeekStart->addWeek();
         }
-
+    
         return response()->json(['message' => 'Disponibilidad actualizada exitosamente']);
     }
-
+    
 
 }
