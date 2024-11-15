@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Profile;
 use App\Models\Day;
 use App\Models\TimeSlot;
+use Carbon\Carbon;
 
 class TimeSlotController extends Controller
 {
@@ -168,6 +169,99 @@ public function ocuparFranja(Request $request)
     $timeSlot->available = false;
     $timeSlot->save();
 
+}
+
+public function actualizarHorarioPorFecha(Request $request, $profileId, $fecha)
+{
+    // Validar el formato de la fecha y los horarios
+    $request->validate([
+        'horarios' => 'required|array',
+        'horarios.*' => 'required|date_format:H:i',
+    ]);
+
+    // Verificar que el perfil existe
+    $profile = Profile::find($profileId);
+    if (!$profile) {
+        return response()->json(['message' => 'El perfil especificado no existe.'], 404);
+    }
+
+    // Buscar el día usando la fecha proporcionada y el perfil
+    $day = Day::where('profile_id', $profileId)
+            ->where('fecha', $fecha)
+            ->first();
+
+    // Si no existe el día, lo creamos
+    if (!$day) {
+        $day = Day::create([
+            'profile_id' => $profileId,
+            'name' => Carbon::parse($fecha)->format('l'), // nombre del día
+            'fecha' => $fecha,
+        ]);
+    }
+
+    $horariosNuevos = $request->input('horarios');
+    $tamanoFranja = 30; // Tamaño de la franja en minutos
+    $horariosNuevosConvertidos = [];
+
+    try {
+
+// Obtener las franjas horarias existentes en el día
+$timeSlotsExistentes = TimeSlot::where('day_id', $day->id)->get();
+
+        // Identificar las franjas a eliminar
+        foreach ($timeSlotsExistentes as $timeSlot) {
+            $existsInNewSlots = collect($horariosNuevosConvertidos)->contains(function ($nuevoHorario) use ($timeSlot) {
+                return $nuevoHorario['hour_start'] === $timeSlot->hour_start && $nuevoHorario['hour_end'] === $timeSlot->hour_end;
+            });
+
+            // Si la franja no está en los nuevos horarios y está disponible, eliminarla
+            if (!$existsInNewSlots && $timeSlot->available) {
+                $timeSlot->delete();
+            }
+        }
+
+        foreach ($horariosNuevos as $hourStart) {
+            $horaInicioTimestamp = strtotime($hourStart);
+
+            // Crear dos franjas de 30 minutos cada una
+            for ($i = 0; $i < 2; $i++) {
+                $horaFin = date("H:i", strtotime("+$tamanoFranja minutes", $horaInicioTimestamp));
+
+                // Verificar si la franja horaria ya existe
+                $timeSlotExistente = TimeSlot::where('day_id', $day->id)
+                    ->where('hour_start', date("H:i", $horaInicioTimestamp))
+                    ->where('hour_end', $horaFin)
+                    ->first();
+
+                // Guardar el horario generado en el array para comparar luego
+                $horariosNuevosConvertidos[] = [
+                    'hour_start' => date("H:i", $horaInicioTimestamp),
+                    'hour_end' => $horaFin
+                ];
+
+                // Si no existe, crear la franja horaria
+                if (!$timeSlotExistente) {
+                    TimeSlot::create([
+                        'day_id' => $day->id,
+                        'hour_start' => date("H:i", $horaInicioTimestamp),
+                        'hour_end' => $horaFin,
+                        'available' => true,
+                    ]);
+                }
+
+                // Actualizar la hora de inicio para la siguiente franja
+                $horaInicioTimestamp = strtotime($horaFin);
+            }
+        }
+
+        return response()->json(['message' => 'Horario actualizado correctamente.'], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Error al actualizar el horario.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
 }
 
 
