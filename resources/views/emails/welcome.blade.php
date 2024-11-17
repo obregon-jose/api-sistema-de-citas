@@ -7,7 +7,7 @@
     <title>Bienvenido a {{ env('APP_NAME') }}</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            /* font-family: Arial, sans-serif; */
             margin: 0;
             padding: 0;
             background-color: #eaeaea;
@@ -65,14 +65,16 @@
         
         <div class="content">
             <h2>Hola, {{ $user->name }}!</h2>
-            @if ($role != 'root')
+            <!-- @if ($role === 'cliente')
             <p>Estamos emocionados de que te unas a nuestra comunidad de {{ env('APP_NAME') }}, 
-                donde la experiencia de reserva de turnos es más fácil y divertida.</p> 
-            @endif
+                donde la experiencia de reserva es más fácil y divertida.</p> 
+            @endif -->
 
             <br>
             @if ($role == 'cliente')
             <div class="content-item">
+                <p>Estamos emocionados de que te unas a nuestra comunidad de {{ env('APP_NAME') }}, 
+                    donde la experiencia de reserva es más fácil y divertida.</p>
                 <p>¡Gracias por registrarte! Ahora puedes reservar tus turnos 
                     con solo un clic y disfrutar de un servicio excepcional. ¡Te esperamos 
                     en {{ env('BARBERSHOP_NAME') }} para cuidar de tu estilo!</p>
@@ -96,14 +98,14 @@
             </div>
             @endif
 
-            <!-- @if (!empty($password)) -->
+            @if (!empty($password))
             <div class="content-item">
                 <p class="left-align">Para comenzar, inicia sesión en tu cuenta con las siguientes credenciales:</p>
                 <p class="left-align">Correo: {{ $user->email }}</p>
                 <p class="left-align">Contraseña: {{ $password }}</p>
                 <p class="left-align">Te sugerimos cambiar esta contraseña después de tu primer inicio de sesión.</p>
             </div>
-            <!-- @endif -->
+            @endif
             
             <br>
             <div class="content-item">
@@ -116,7 +118,7 @@
             @if ($role != 'root')
             <p>Gracias por elegir {{ env('APP_NAME') }}.</p>
             @endif
-            <p>Este es un mensaje automático, por favor no respondas.</p>
+            <p>Este es un mensaje automático, por favor no lo respondas.</p>
         </div>
     </div>
 </body>
