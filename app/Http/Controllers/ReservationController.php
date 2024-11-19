@@ -64,7 +64,7 @@ class ReservationController extends Controller
             // Obtener la fecha y la hora de inicio desde la solicitud
             $date = $request->input('date');
             $hourStart = $request->input('time');
-
+            
             // Buscar el día correspondiente usando la fecha
             $day = Day::where('profile_id',$request->barber_id)
                         ->where('fecha', $date)

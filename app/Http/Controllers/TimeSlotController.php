@@ -205,8 +205,8 @@ public function actualizarHorarioPorFecha(Request $request, $profileId, $fecha)
 
     try {
 
-// Obtener las franjas horarias existentes en el día
-$timeSlotsExistentes = TimeSlot::where('day_id', $day->id)->get();
+        // Obtener las franjas horarias existentes en el día
+        $timeSlotsExistentes = TimeSlot::where('day_id', $day->id)->get();
 
         // Identificar las franjas a eliminar
         foreach ($timeSlotsExistentes as $timeSlot) {
@@ -260,6 +260,128 @@ $timeSlotsExistentes = TimeSlot::where('day_id', $day->id)->get();
         return response()->json([
             'message' => 'Error al actualizar el horario.',
             'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+
+public function actualizarFranja(Request $request, $profileId)
+{
+    // Validar el formato del cuerpo de la solicitud
+    $request->validate([
+        '*' => 'array', // Las claves son días y apuntan a arreglos de horarios
+        '*.0' => 'date_format:H:i', // Cada horario debe tener el formato H:i
+    ]);
+
+    // Validar que el perfil existe
+    $profile = Profile::find($profileId);
+    if (!$profile) {
+        return response()->json(['message' => 'El perfil no existe.'], 404);
+    }
+
+    try {
+        $diasHorarios = $request->all();
+        $tamanoFranja = 30; // Tamaño de la franja en minutos
+
+        // Configurar el rango de fechas desde hoy hasta el 31 de diciembre del presente año
+        $fechaInicio = now();
+        $fechaFin = now()->endOfYear();
+
+        // Mapa de días en inglés a español
+        $diasEnInglesAEspanol = [
+            'Monday' => 'LUNES', 'Tuesday' => 'MARTES', 'Wednesday' => 'MIERCOLES',
+            'Thursday' => 'JUEVES', 'Friday' => 'VIERNES', 'Saturday' => 'SABADO', 'Sunday' => 'DOMINGO'
+        ];
+
+        // Mantener un registro de los días procesados
+        $diasProcesados = [];
+
+        // Eliminar días no incluidos en la nueva configuración
+        $diasExistentes = Day::where('profile_id', $profileId)->get();
+        foreach ($diasExistentes as $day) {
+            if (!in_array($day->id, $diasProcesados)) {
+                // Verificar si el día tiene franjas ocupadas que no estén canceladas
+                $tieneFranjasOcupadas = TimeSlot::where('day_id', $day->id)
+                                                ->where(function ($query) {
+                                                    $query->where('barber_available', true)
+                                                        ->where('available', false);
+                                                })
+                                                ->exists();
+            
+                // Si hay franjas ocupadas no canceladas, impedir la eliminación del día
+                if ($tieneFranjasOcupadas) {
+                    return response()->json([
+                        'message' => 'Tiene reservaciones pendientes. Por favor cancelar primero.',
+                    ]);
+                }
+                if (!$tieneFranjasOcupadas) {
+                    $day->timeSlots()->delete();
+                    $day->delete();
+                }
+            }
+        }
+        
+
+        // Iterar por el rango de fechas
+        for ($fecha = $fechaInicio; $fecha->lte($fechaFin); $fecha->addDay()) {
+            $diaNombre = $fecha->format('l'); // Día en inglés
+            $diaNombreSolicitud = $diasEnInglesAEspanol[$diaNombre] ?? null;
+
+            if ($diaNombreSolicitud && isset($diasHorarios[$diaNombreSolicitud])) {
+                // Crear el día asociado al perfil si no existe
+                $day = Day::firstOrCreate([
+                    'profile_id' => $profileId,
+                    'name' => $diaNombreSolicitud,
+                    'fecha' => $fecha->format('Y-m-d'),
+                ]);
+
+                $diasProcesados[] = $day->id; // Registrar el día como procesado
+
+                $horariosNuevos = $diasHorarios[$diaNombreSolicitud];
+                $horariosNuevosConvertidos = [];
+
+                // Generar franjas horarias nuevas
+                foreach ($horariosNuevos as $horaInicio) {
+                    $horaInicioTimestamp = strtotime($horaInicio);
+
+                    // Crear dos franjas de 30 minutos cada una
+                    for ($i = 0; $i < 2; $i++) {
+                        $horaFin = date("H:i", strtotime("+$tamanoFranja minutes", $horaInicioTimestamp));
+
+                        // Guardar el horario generado en el array para comparar luego
+                        $horariosNuevosConvertidos[] = [
+                            'hour_start' => date("H:i", $horaInicioTimestamp),
+                            'hour_end' => $horaFin
+                        ];
+
+                        // Verificar si la franja horaria ya existe
+                        $timeSlotExistente = TimeSlot::where('day_id', $day->id)
+                            ->where('hour_start', date("H:i", $horaInicioTimestamp))
+                            ->where('hour_end', $horaFin)
+                            ->first();
+
+                        // Si no existe, crear la franja horaria
+                        if (!$timeSlotExistente) {
+                            TimeSlot::create([
+                                'day_id' => $day->id,
+                                'hour_start' => date("H:i", $horaInicioTimestamp),
+                                'hour_end' => $horaFin,
+                                'available' => true,
+                            ]);
+                        }
+
+                        // Actualizar la hora de inicio para la siguiente franja
+                        $horaInicioTimestamp = strtotime($horaFin);
+                    }
+                }
+            }
+        }
+
+        return response()->json(['message' => 'Franjas y días actualizados correctamente.'], 200);
+
+    } catch (\Exception $err) {
+        return response()->json([
+            'message' => 'Ha ocurrido un error inesperado.',
+            'error' => $err->getMessage(),
         ], 500);
     }
 }
