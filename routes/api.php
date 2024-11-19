@@ -128,9 +128,10 @@ Route::group(['prefix' => '/', 'middleware' => 'auth:sanctum',], function () {
 Route::post('/register', [RegisterController::class, 'register']);
 
 Route::get('/barber-availability/{id}/{date}', [BarberController::class, 'getAvailability']);
+Route::get('/barber-agenda/{id}/{date}', [BarberController::class, 'getAgenda']);
 
-Route::post('/barber-availability/{id}/{start_date}/{end_date}', [BarberController::class, 'updateAvailability']);
-
+Route::post('/barber-agenda/{id}/{start_date}/{end_date}', [BarberController::class, 'updateAvailability']);
+Route::post('/agenda-reservation/{id}/{date}', [BarberController::class, 'updateReservation']);
 
 Route::get('/', function () {
     echo "
