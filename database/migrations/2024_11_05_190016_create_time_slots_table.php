@@ -16,7 +16,8 @@ return new class extends Migration
             $table->foreignId('day_id')->constrained()->onDelete('cascade');
             $table->time('hour_start');
             $table->time('hour_end');
-            $table->boolean('available')->default(true);
+            $table->boolean('barber_available')->default(true);
+            $table->boolean('available')->default(false);
             $table->timestamps();
             $table->unique(['day_id', 'hour_start','hour_end']);
         });
