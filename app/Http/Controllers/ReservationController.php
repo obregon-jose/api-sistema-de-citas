@@ -39,7 +39,7 @@ class ReservationController extends Controller
                 'total_paid' => 'required|integer',
                 //reserva
                 'client_id' => 'required|exists:users,id',
-                'date' => 'required',
+                'date' => 'required|date',
                 'time'  => 'required',
                 // 'end_time'  => 'date_format:H:i',
                 'status' => 'sometimes|in:1,pending', // Siempre queda pendiente?
@@ -75,27 +75,25 @@ class ReservationController extends Controller
             // }
 
             // Buscar la franja horaria usando el día y la hora de inicio
-            // $timeSlot = TimeSlot::where('day_id', $day->id)
-            //                     ->where('hour_start', $hourStart)
-            //                     ->first();
+            $timeSlot = TimeSlot::where('day_id', $day->id)
+                                ->where('hour_start', $hourStart)
+                                ->first();
 
             // if (!$timeSlot) {
             //     return response()->json(['message' => 'No se encontró la franja horaria para la fecha y hora proporcionadas.'], 404);
             // }
 
             // Marcar la franja como ocupada
-            // $timeSlot->available = false;
-            // $timeSlot->save();
+            $timeSlot->available = false;
+            $timeSlot->save();
             ////////////////////////////////////////////////////////////////////////////////////
             
             // Enviar correo 
             // Mail::to($user->email)->send(new WelcomeEmail($user, $roleName, $passwordGenerado ?? ''));
-            // Enviar correo de bienvenida
-            SendReservationEmail::dispatch($attentionQuote, $reservation);
             
             // Devolver respuesta
             return response()->json([
-                'message' => 'Su Reserva se ha generado con éxito',
+                'message' => 'Su Reserva se a generado con éxito',
                 // 'reservation' => $reservation,
                 // 'quote' => $attentionQuote,
             ], 201);
@@ -107,6 +105,7 @@ class ReservationController extends Controller
             ], 400);
         }
     }
+
 
     /**
      * Display the specified resource.
