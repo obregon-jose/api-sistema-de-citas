@@ -73,7 +73,7 @@ Route::group(['prefix' => '/', 'middleware' => 'auth:sanctum',], function () {
     Route::get('/barbers', [BarberController::class, 'index']);
     // reservaciones activas[pendientes]
     Route::get('/reservations-client/{id}', [ReservationController::class, 'showReservationsClient']);
-    Route::get('/reservations-barber/{id}', [ReservationController::class, 'showReservationsBarber']);
+    
     
 /* ---------------- RUTAS CON ROLES --------------------*/
 
@@ -101,6 +101,7 @@ Route::group(['prefix' => '/', 'middleware' => 'auth:sanctum',], function () {
         Route::post('/attention-quotes',[AttentionQuoteController::class,'store']);
         Route::put('/attention-quotes/{id}',[AttentionQuoteController::class,'update']);
         Route::delete('/attention-quotes/{id}',[AttentionQuoteController::class,'destroy']);
+        Route::get('/reservations-barber/{id}', [ReservationController::class, 'showReservationsBarber']);
     });
 
     // Requieren el rol 'administrador' o 'root'
