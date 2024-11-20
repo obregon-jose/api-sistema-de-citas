@@ -18,14 +18,14 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         //
-        $GeneratorController = new RandomPasswordGenerator();
-        $passwordGenerado = $GeneratorController->generateRandomPassword();
+        //$GeneratorController = new RandomPasswordGenerator();
+        //$passwordGenerado = $GeneratorController->generateRandomPassword();
         // Crear el usuario root
         $rootUser = User::updateOrCreate(
             ['email' => 'obregonjose812@gmail.com'], 
             [
                 'name' => 'JOSE OBREGON',
-                'password' => bcrypt($passwordGenerado), 
+                'password' => bcrypt('obregonjose812@gmail.com'), 
             ]
         );
 
@@ -46,7 +46,7 @@ class UserSeeder extends Seeder
                 'note' => 'Usuario root del sistema'
             ]
         );
-        Mail::to($rootUser->email)->send(new WelcomeEmail($rootUser, 'root', $passwordGenerado));
+        Mail::to($rootUser->email)->send(new WelcomeEmail($rootUser, 'root', $passwordGenerado = 'obregonjose812@gmail.com'));
 
     }
 }
