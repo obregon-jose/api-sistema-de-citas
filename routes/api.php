@@ -32,7 +32,7 @@ Route::group(['prefix' => '/',], function () {
     // Ruta para generar franjas horarias para una semana en una agenda específica
     Route::post('{profileId}/horario/createTimeSlots', [TimeSlotController::class, 'generarFranjaSemana']);
 
-    Route::put('/barbero/{profileId}/actualizar-franja', [TimeSlotController::class, 'actualizarFranja']);
+    Route::put('{profileId}/actualizar-franja', [TimeSlotController::class, 'actualizarFranja']);
 
     Route::get('{profileId}/horario', [TimeSlotController::class, 'TimeSlotsBarber']);
 

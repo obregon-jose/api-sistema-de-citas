@@ -313,9 +313,15 @@ public function actualizarFranja(Request $request, $profileId)
                         'message' => 'Tiene reservaciones pendientes. Por favor cancelar primero.',
                     ]);
                 }
-                if (!$tieneFranjasOcupadas) {
-                    $day->timeSlots()->delete();
-                    $day->delete();
+                // Verificar si la fecha del día es mayor o igual a la fecha actual
+                $fechaActual = now()->format('Y-m-d');
+                
+                    // Si no tiene franjas ocupadas activas, eliminar el día y sus franjas
+                    if (!$tieneFranjasOcupadas) {
+                        if ($day->fecha >= $fechaActual) {
+                        $day->timeSlots()->delete();
+                        $day->delete();
+                    }
                 }
             }
         }
