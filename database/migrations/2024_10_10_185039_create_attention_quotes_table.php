@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('barber_id')->constrained('profiles', 'user_id')->onDelete('cascade');
             $table->json('service_details');
             $table->integer('total_paid');
-            $table->enum('status', ['pending', 'completed', 'cancelled'])->default('pending'); 
+            $table->enum('status', ['pending', 'completed', 'cancelled', 'expired'])->default('pending'); 
             $table->timestamps(); //
         });
     }

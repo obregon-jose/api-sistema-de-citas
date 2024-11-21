@@ -17,7 +17,7 @@ return new class extends Migration
             $table->date('date');
             $table->time('time');
             // $table->time('end_time');
-            $table->enum('status', ['pending', 'completed', 'cancelled'])->default('pending');
+            $table->enum('status', ['pending', 'completed', 'cancelled','expired'])->default('pending');
             $table->string('note')->nullable();
             $table->foreignId('quote_id')->constrained('attention_quotes', 'id')->onDelete('cascade');
             $table->unique(['date', 'time']);

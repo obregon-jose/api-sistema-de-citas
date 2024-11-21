@@ -40,7 +40,7 @@ class AttentionQuoteController extends Controller
                 'date' => 'sometimes|date',
                 'time'  => 'sometimes|date_format:H:i',
                 'end_time'  => 'sometimes|date_format:H:i',
-                'status' => 'sometimes|in:1,pending,2,completed,3,cancelled', //revisar criterios
+                'status' => 'sometimes|in:1,pending,2,completed,3,cancelled,4,expired', //revisar criterios
             ]);
 
             if ($validatedData['isReservation'] == true) {
@@ -112,7 +112,7 @@ class AttentionQuoteController extends Controller
                 'time'  => 'sometimes|date_format:H:i',
                 'end_time'  => 'sometimes|date_format:H:i',
                 'note' => 'nullable|string', //esto va en delete
-                'status' => 'sometimes|in:1,pending,2,completed,3,cancelled',
+                'status' => 'sometimes|in:1,pending,2,completed,3,cancelled,4,expired',
             ]);
 
             $attentionQuote = AttentionQuote::findOrFail($id);

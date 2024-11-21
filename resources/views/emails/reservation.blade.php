@@ -96,9 +96,9 @@
 </head>
 <body>
   <div class="container">
-    @if ($role === 'peluquero')
+    @if ($role == 'peluquero')
     <div class="header">
-        Hola <span>{{ $barber_name }}</span>, tienes una nueva reserva revisa su agenda.<br>
+        Hola <span>{{ $barber_name }}</span>, tienes una nueva reserva, revisa su agenda.<br>
     </div>
     @else
       <div class="header">
@@ -122,7 +122,7 @@
           <th>Hora</th>
           <td>{{ $time }}</td>
         </tr>
-        @if ($role === 'peluquero')
+        @if ($role == 'peluquero')
           <tr>
             <th>Cliente</th>
             <td>{{ $client_name }}</td>

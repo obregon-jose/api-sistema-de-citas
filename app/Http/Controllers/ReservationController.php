@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\Day;
 use App\Models\Profile;
 use App\Models\TimeSlot;
+use Carbon\Carbon;
 
 class ReservationController extends Controller
 {
@@ -174,7 +175,7 @@ class ReservationController extends Controller
                 'time'  => 'required|date_format:H:i',
                 'end_time'  => 'required|date_format:H:i',
                 'note' => 'nullable|string', //esto va en delete
-                'status' => 'sometimes|in:1,pending,2,completed,3,cancelled',
+                'status' => 'sometimes|in:1,pending,2,completed,3,cancelled,4,expired',
             ]);
             
             if (Reservation::where('client_id', $validatedData['client_id'])
@@ -227,4 +228,49 @@ class ReservationController extends Controller
             ], 400);
         }
     }
+
+    public function expiredReservations()
+    {
+        try {
+            // Obtiene la fecha y hora actual
+            $currentDateTime = Carbon::now(); // Fecha y hora actuales
+    
+            // Obtiene las reservas que deben expirar
+            $reservations = Reservation::where(function ($query) use ($currentDateTime) {
+                    $query->where('date', $currentDateTime->toDateString())
+                          ->orWhere(function ($q) use ($currentDateTime) {
+                              $q->where('date', '=', $currentDateTime->toDateString())
+                                ->where('time', '<=', $currentDateTime->toTimeString());
+                          });
+                })
+                ->where('status', '!=', 'expired') // Evita actualizar las que ya están vencidas
+                ->get();
+    
+            // Actualiza las reservas y sus citas asociadas
+            foreach ($reservations as $reservation) {
+                $reservation->status = 'expired';
+                $reservation->save();
+    
+                // Busca la cita asociada (quote) y actualiza su estado si existe
+                $quote = AttentionQuote::find($reservation->quote_id);
+                if ($quote && $quote->status != 'expired') {
+                    $quote->status = 'expired';
+                    $quote->save();
+                }
+            }
+    
+            return response()->json([
+                'message' => 'Reservas y citas actualizadas con éxito.',
+                'updated_reservations' => $reservations->count(),
+            ], 200);
+        } catch (\Exception $e) {
+            // Manejo de errores
+            return response()->json([
+                'error' => 'Ocurrió un error al actualizar las reservas.',
+                'details' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    
+
 }
