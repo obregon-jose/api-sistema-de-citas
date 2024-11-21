@@ -232,36 +232,35 @@ class ReservationController extends Controller
     public function expiredReservations()
     {
         try {
-            // Obtiene la fecha y hora actual
+            // Configuración de vencimiento (60 minutos)
+            $expirationInterval = 30; // Número de minutos para el vencimiento
             $currentDateTime = Carbon::now(); // Fecha y hora actuales
-    
-            // Obtiene las reservas que deben expirar
-            $reservations = Reservation::where(function ($query) use ($currentDateTime) {
-                    $query->where('date', $currentDateTime->toDateString())
-                          ->orWhere(function ($q) use ($currentDateTime) {
-                              $q->where('date', '=', $currentDateTime->toDateString())
-                                ->where('time', '<=', $currentDateTime->toTimeString());
+        
+            // Cálculo de la fecha y hora límite de vencimiento
+            $expirationTime = $currentDateTime->copy()->subMinutes($expirationInterval)->toDateTimeString();
+        
+            // Actualizar reservas vencidas
+            $updatedReservations = Reservation::where(function ($query) use ($expirationTime) {
+                    // Condición para las reservas con fecha y hora vencida
+                    $query->where('status', 'pending') // Reservas pendientes
+                          ->where(function ($q) use ($expirationTime) {
+                              $q->whereRaw("CONCAT(date, ' ', time) <= ?", [$expirationTime]);
                           });
                 })
-                ->where('status', '!=', 'expired') // Evita actualizar las que ya están vencidas
-                ->get();
-    
-            // Actualiza las reservas y sus citas asociadas
-            foreach ($reservations as $reservation) {
-                $reservation->status = 'expired';
-                $reservation->save();
-    
-                // Busca la cita asociada (quote) y actualiza su estado si existe
-                $quote = AttentionQuote::find($reservation->quote_id);
-                if ($quote && $quote->status != 'expired') {
-                    $quote->status = 'expired';
-                    $quote->save();
-                }
-            }
-    
+                ->update(['status' => 'expired']); // Actualiza a estado 'expired'
+        
+            // Actualizar citas asociadas si no están expiradas
+            $updatedQuotes = AttentionQuote::whereHas('reservation', function ($query) use ($expirationTime) {
+                    // Verifica si la reserva asociada ya expiró
+                    $query->where('status', 'expired');
+                })
+                ->where('status', '!=', 'expired') // Evita sobrescribir citas ya expiradas
+                ->update(['status' => 'expired']); // Actualiza a estado 'expired'
+        
             return response()->json([
                 'message' => 'Reservas y citas actualizadas con éxito.',
-                'updated_reservations' => $reservations->count(),
+                'updated_reservations' => $updatedReservations,
+                'updated_quotes' => $updatedQuotes,
             ], 200);
         } catch (\Exception $e) {
             // Manejo de errores
@@ -271,6 +270,9 @@ class ReservationController extends Controller
             ], 500);
         }
     }
+    
+    
+
     
 
 }
