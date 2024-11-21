@@ -231,48 +231,44 @@ class ReservationController extends Controller
 
     public function expiredReservations()
     {
-        try {
-            // Configuración de vencimiento (60 minutos)
-            $expirationInterval = 30; // Número de minutos para el vencimiento
-            $currentDateTime = Carbon::now(); // Fecha y hora actuales
+    //     try {
+    //         // Configuración de vencimiento (60 minutos)
+    //         $expirationInterval = 60; // Número de minutos para el vencimiento
+    //         $currentDateTime = Carbon::now(); // Fecha y hora actuales
         
-            // Cálculo de la fecha y hora límite de vencimiento
-            $expirationTime = $currentDateTime->copy()->subMinutes($expirationInterval)->toDateTimeString();
+    //         // Cálculo de la fecha y hora límite de vencimiento
+    //         $expirationTime = $currentDateTime->copy()->subMinutes($expirationInterval)->toDateTimeString();
         
-            // Actualizar reservas vencidas
-            $updatedReservations = Reservation::where(function ($query) use ($expirationTime) {
-                    // Condición para las reservas con fecha y hora vencida
-                    $query->where('status', 'pending') // Reservas pendientes
-                          ->where(function ($q) use ($expirationTime) {
-                              $q->whereRaw("CONCAT(date, ' ', time) <= ?", [$expirationTime]);
-                          });
-                })
-                ->update(['status' => 'expired']); // Actualiza a estado 'expired'
+    //         // Actualizar reservas vencidas
+    //         $updatedReservations = Reservation::where(function ($query) use ($expirationTime) {
+    //                 // Condición para las reservas con fecha y hora vencida
+    //                 $query->where('status', 'pending') // Reservas pendientes
+    //                       ->where(function ($q) use ($expirationTime) {
+    //                           $q->whereRaw("CONCAT(date, ' ', time) <= ?", [$expirationTime]);
+    //                       });
+    //             })
+    //             ->update(['status' => 'expired']); // Actualiza a estado 'expired'
         
-            // Actualizar citas asociadas si no están expiradas
-            $updatedQuotes = AttentionQuote::whereHas('reservation', function ($query) use ($expirationTime) {
-                    // Verifica si la reserva asociada ya expiró
-                    $query->where('status', 'expired');
-                })
-                ->where('status', '!=', 'expired') // Evita sobrescribir citas ya expiradas
-                ->update(['status' => 'expired']); // Actualiza a estado 'expired'
+    //         // Actualizar citas asociadas si no están expiradas
+    //         $updatedQuotes = AttentionQuote::whereHas('reservation', function ($query) use ($expirationTime) {
+    //                 // Verifica si la reserva asociada ya expiró
+    //                 $query->where('status', 'expired');
+    //             })
+    //             ->where('status', '!=', 'expired') // Evita sobrescribir citas ya expiradas
+    //             ->update(['status' => 'expired']); // Actualiza a estado 'expired'
         
-            return response()->json([
-                'message' => 'Reservas y citas actualizadas con éxito.',
-                'updated_reservations' => $updatedReservations,
-                'updated_quotes' => $updatedQuotes,
-            ], 200);
-        } catch (\Exception $e) {
-            // Manejo de errores
-            return response()->json([
-                'error' => 'Ocurrió un error al actualizar las reservas.',
-                'details' => $e->getMessage(),
-            ], 500);
-        }
-    }
-    
-    
-
-    
+    //         return response()->json([
+    //             'message' => 'Reservas y citas actualizadas con éxito.',
+    //             'updated_reservations' => $updatedReservations,
+    //             'updated_quotes' => $updatedQuotes,
+    //         ], 200);
+    //     } catch (\Exception $e) {
+    //         // Manejo de errores
+    //         return response()->json([
+    //             'error' => 'Ocurrió un error al actualizar las reservas.',
+    //             'details' => $e->getMessage(),
+    //         ], 500);
+    //     }
+    }   
 
 }
