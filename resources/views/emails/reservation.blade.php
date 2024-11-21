@@ -95,10 +95,17 @@
 
 </head>
 <body>
-  <div class="container">   
+  <div class="container">
+    @if ($role === 'peluquero')
     <div class="header">
-        Hola <span>{{ $client_name }}</span>, tu reserva ha sido confirmada.<br>
+        Hola <span>{{ $barber_name }}</span>, tienes una nueva reserva revisa su agenda.<br>
     </div>
+    @else
+      <div class="header">
+      Hola <span>{{ $client_name }}</span>, tu reserva ha sido confirmada.<br>
+      </div>
+    @endif   
+    
     <div class="section-title">
         DETALLES
     </div>
@@ -115,10 +122,18 @@
           <th>Hora</th>
           <td>{{ $time }}</td>
         </tr>
-        <tr>
-          <th>Peluquero</th>
-          <td>{{ $barber_name }}</td>
-        </tr>
+        @if ($role === 'peluquero')
+          <tr>
+            <th>Cliente</th>
+            <td>{{ $client_name }}</td>
+          </tr>
+        @else
+          <tr>
+            <th>Peluquero</th>
+            <td>{{ $barber_name }}</td>
+          </tr>
+        @endif 
+        
         <tr>
           <th>Servicio</th>
           <td>{{ $services_details }}</td>

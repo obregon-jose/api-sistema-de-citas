@@ -38,6 +38,6 @@ class LogoutController extends Controller
         return response()->json([
             // 'success' => true,
             // 'message' => 'Sesión cerrada'
-        ], 204);
+        ], 200);
     }
 }

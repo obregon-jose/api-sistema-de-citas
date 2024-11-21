@@ -32,12 +32,12 @@ class SendReservationEmail implements ShouldQueue
     public function __construct($attentionQuote, $reservation)
     {
         //
-        $this->client_id = $attentionQuote['client_id'];
         $this->barber_id = $attentionQuote['barber_id'];
         $this->client_name = $attentionQuote['client_name'];
         $this->barber_name = User::find($attentionQuote['barber_id'])->name;
         $this->services_details = $attentionQuote['service_details'];
         $this->total_paid = $attentionQuote['total_paid'];
+        $this->client_id = $reservation['client_id'];
         $this->date = $reservation['date'];
         $this->time = $reservation['time'];
         $this->status = $reservation['status'];
@@ -49,8 +49,8 @@ class SendReservationEmail implements ShouldQueue
     public function handle(): void
     {
         $userBarber = User::find($this->barber_id);
-        Mail::to($userBarber->email)->send(new ReservationMail($this->client_name, $this->barber_name, $this->services_details, $this->total_paid, $this->date, $this->time, $this->status));
-        #$userClient = User::find(2);
-        #Mail::to($userClient->email)->send(new ReservationMail($this->client_name, $this->barber_name, $this->services_details, $this->total_paid, $this->date, $this->time, $this->status));
+        Mail::to($userBarber->email)->send(new ReservationMail('peluquero', $this->client_name, $this->barber_name, $this->services_details, $this->total_paid, $this->date, $this->time, $this->status));
+        $userClient = User::find($this->client_id);
+        Mail::to($userClient->email)->send(new ReservationMail('cliente', $this->client_name, $this->barber_name, $this->services_details, $this->total_paid, $this->date, $this->time, $this->status));
     }
 }

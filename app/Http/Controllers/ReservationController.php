@@ -88,9 +88,9 @@ class ReservationController extends Controller
             $timeSlot->save();
             ////////////////////////////////////////////////////////////////////////////////////
             
-            // Enviar correo 
-            // Mail::to($user->email)->send(new WelcomeEmail($user, $roleName, $passwordGenerado ?? ''));
-            
+            // Enviar correo de la reserva
+            SendReservationEmail::dispatch($attentionQuote, $reservation);
+                        
             // Devolver respuesta
             return response()->json([
                 'message' => 'Su Reserva se a generado con éxito',

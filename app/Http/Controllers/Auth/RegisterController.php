@@ -84,9 +84,9 @@ class RegisterController extends Controller
 
             $roleName = Role::find($validatedData['role_id'])->name;
 
-            if ($roleName === 'peluquero') {
-                $availabilityController = new BarberController();
-                $availabilityController->createDefaultAvailability($user->id);
+            if ($roleName == 'peluquero') {
+                //$availabilityController = new BarberController();
+                //$availabilityController->createDefaultAvailability($user->id);
                 // CAMBIAR ESTO A SEGUNDO PLANO
                 //CreateAvailability::dispatch($user->id);
             }
