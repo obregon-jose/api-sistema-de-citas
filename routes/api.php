@@ -134,10 +134,10 @@ Route::get('/barber-availability/{id}/{date}', [BarberController::class, 'getAva
 Route::get('/barber-agenda/{id}/{date}', [BarberController::class, 'getAgenda']);
 
 Route::post('/barber-agenda/{id}/{start_date}/{end_date}', [BarberController::class, 'updateAvailability']);
-Route::post('/agenda-reservation/{id}/{date}', [BarberController::class, 'updateReservation']);
+Route::put('/agenda-reservation', [BarberController::class, 'updateReservation']);
 
 Route::get('/expired-reservations', [ReservationController::class, 'expiredReservations']);
-Route::get('/updateReservations', [ReservationController::class, 'updateReservations']);
+Route::put('/updateReservations', [ReservationController::class, 'updateReservations']);
 Route::get('/', function () {
     echo "
     <html>

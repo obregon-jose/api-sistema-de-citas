@@ -270,15 +270,40 @@ class ReservationController extends Controller
     //         ], 500);
     //     }
     }
-    public function updateReservations($id = 32, $status='completed')
+
+    public function updateReservations(Request $request)
     {
-        try {        
+        $id = $request->id;
+        $status = $request->status;
+        try {
+            // Buscar la cita de atención
             $attentionQuote = AttentionQuote::findOrFail($id); 
             $attentionQuote->update(['status' => $status]);
+            // Actualizar el estado de las reservas relacionadas
+            $reservations = Reservation::where('quote_id', $attentionQuote->id)->get();
+            foreach ($reservations as $reservation) {
+                $reservation->update(['status' => $status]);
 
-            $reservations = Reservation::where('quote_id', $attentionQuote->id);
-            $reservations->update(['status' => $status]);
-
+                // Si el estado es "cancelled", marcar la franja horaria como disponible
+                if ($status === 'cancelled') {
+                    $date = $reservation->date;
+                    $hourStart = $reservation->hour_start;
+                    // Buscar el día correspondiente
+                    $day = Day::where('profile_id', $request->barber_id)
+                            ->where('fecha', $date)
+                            ->first();
+                    if ($day) {
+                        // Buscar la franja horaria
+                        $timeSlot = TimeSlot::where('day_id', $day->id)
+                                            ->where('hour_start', $hourStart)
+                                            ->first();
+                        if ($timeSlot) {
+                            $timeSlot->available = true;
+                            $timeSlot->save();
+                        }
+                    }
+                }
+            }
             return response()->json([
                 'message' => 'Reservas y citas actualizadas con éxito.'
             ], 200);
@@ -286,8 +311,10 @@ class ReservationController extends Controller
             // Manejo de errores
             return response()->json([
                 'error' => 'Ocurrió un error al actualizar las reservas.',
+                'details' => $e->getMessage(),
             ], 500);
         }
-    }    
+    }
+    
 
 }
