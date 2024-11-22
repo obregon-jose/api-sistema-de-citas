@@ -137,7 +137,7 @@ Route::post('/barber-agenda/{id}/{start_date}/{end_date}', [BarberController::cl
 Route::put('/agenda-reservation', [BarberController::class, 'updateReservation']);
 
 Route::get('/expired-reservations', [ReservationController::class, 'expiredReservations']);
-Route::put('/updateReservations', [ReservationController::class, 'updateReservations']);
+Route::put('/update-reservations', [ReservationController::class, 'updateReservations']);
 Route::get('/', function () {
     echo "
     <html>

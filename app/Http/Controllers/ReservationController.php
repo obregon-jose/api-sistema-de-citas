@@ -275,14 +275,21 @@ class ReservationController extends Controller
     {
         $id = $request->id;
         $status = $request->status;
+        $total_paid= $request->total_paid;
         try {
             // Buscar la cita de atención
             $attentionQuote = AttentionQuote::findOrFail($id); 
             $attentionQuote->update(['status' => $status]);
+            
+            if ($total_paid != '') {
+                $attentionQuote->update(['total_paid' => $total_paid]);
+            }
+            
             // Actualizar el estado de las reservas relacionadas
             $reservations = Reservation::where('quote_id', $attentionQuote->id)->get();
             foreach ($reservations as $reservation) {
                 $reservation->update(['status' => $status]);
+                
 
                 // Si el estado es "cancelled", marcar la franja horaria como disponible
                 if ($status === 'cancelled') {
