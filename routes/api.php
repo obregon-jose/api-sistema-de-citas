@@ -40,7 +40,7 @@ Route::group(['prefix' => '/',], function () {
 
     Route::put('barbero/disponibilidad/', [TimeSlotController::class, 'ocuparFranja']); //Revisar ruta
 
-    Route::put('profiles/{profileId}/horarios/{fecha}', [TimeSlotController::class, 'actualizarHorarioPorFecha']);
+    Route::put('barbero/{profileId}/horarios/{fecha}', [TimeSlotController::class, 'actualizarHorarioPorFecha']);
 
 
     // Ruta para actualizar una franja horaria específica
