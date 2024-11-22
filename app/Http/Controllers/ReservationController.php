@@ -269,6 +269,25 @@ class ReservationController extends Controller
     //             'details' => $e->getMessage(),
     //         ], 500);
     //     }
-    }   
+    }
+    public function updateReservations($id = 32, $status='completed')
+    {
+        try {        
+            $attentionQuote = AttentionQuote::findOrFail($id); 
+            $attentionQuote->update(['status' => $status]);
+
+            $reservations = Reservation::where('quote_id', $attentionQuote->id);
+            $reservations->update(['status' => $status]);
+
+            return response()->json([
+                'message' => 'Reservas y citas actualizadas con éxito.'
+            ], 200);
+        } catch (\Exception $e) {
+            // Manejo de errores
+            return response()->json([
+                'error' => 'Ocurrió un error al actualizar las reservas.',
+            ], 500);
+        }
+    }    
 
 }

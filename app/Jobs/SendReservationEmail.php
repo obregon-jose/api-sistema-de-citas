@@ -48,9 +48,10 @@ class SendReservationEmail implements ShouldQueue
      */
     public function handle(): void
     {
-        $userBarber = User::find($this->barber_id);
-        Mail::to($userBarber->email)->send(new ReservationMail('peluquero', $this->client_name, $this->barber_name, $this->services_details, $this->total_paid, $this->date, $this->time, $this->status));
-        $userClient = User::find($this->client_id);
-        Mail::to($userClient->email)->send(new ReservationMail('cliente', $this->client_name, $this->barber_name, $this->services_details, $this->total_paid, $this->date, $this->time, $this->status));
+        $barber = User::find($this->barber_id);
+        Mail::to($barber->email)->send(new ReservationMail('peluquero', $this->client_name, $this->barber_name, $this->services_details, $this->total_paid, $this->date, $this->time, $this->status));
+        
+        $client = User::find($this->client_id);
+        Mail::to($client->email)->send(new ReservationMail('cliente', $this->client_name, $this->barber_name, $this->services_details, $this->total_paid, $this->date, $this->time, $this->status));
     }
 }
