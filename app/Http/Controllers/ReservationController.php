@@ -290,11 +290,10 @@ class ReservationController extends Controller
             foreach ($reservations as $reservation) {
                 $reservation->update(['status' => $status]);
                 
-
                 // Si el estado es "cancelled", marcar la franja horaria como disponible
                 if ($status === 'cancelled') {
                     $date = $reservation->date;
-                    $hourStart = $reservation->hour_start;
+                    $hourStart = $reservation->time;
                     // Buscar el día correspondiente
                     $day = Day::where('profile_id', $request->barber_id)
                             ->where('fecha', $date)
