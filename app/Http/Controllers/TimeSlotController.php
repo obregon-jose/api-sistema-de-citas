@@ -299,30 +299,30 @@ public function actualizarFranja(Request $request, $profileId)
         $diasExistentes = Day::where('profile_id', $profileId)->get();
         foreach ($diasExistentes as $day) {
             if (!in_array($day->id, $diasProcesados)) {
-                // Verificar si el día tiene franjas ocupadas que no estén canceladas
-                $tieneFranjasOcupadas = TimeSlot::where('day_id', $day->id)
-                                                ->where(function ($query) {
-                                                    $query->where('barber_available', true)
-                                                        ->where('available', false);
-                                                })
-                                                ->exists();
-            
-                // Si hay franjas ocupadas no canceladas, impedir la eliminación del día
-                if ($tieneFranjasOcupadas) {
-                    return response()->json([
-                        'message' => 'Tiene reservaciones pendientes. Por favor cancelar primero.',
-                    ]);
-                }
-                // Verificar si la fecha del día es mayor o igual a la fecha actual
+
                 $fechaActual = now()->format('Y-m-d');
+
+                if ($day->fecha >= $fechaActual) {
+                    // Verificar si el día tiene franjas ocupadas que no estén canceladas
+                    $tieneFranjasOcupadas = TimeSlot::where('day_id', $day->id)
+                                                    ->where(function ($query) {
+                                                        $query->where('barber_available', true)
+                                                            ->where('available', false);
+                                                    })
+                                                    ->exists();
+                
+                    // Si hay franjas ocupadas no canceladas, impedir la eliminación del día
+                    if ($tieneFranjasOcupadas) {
+                        return response()->json([
+                            'message' => 'Tiene reservaciones pendientes. Por favor cancelar primero.',
+                        ]);
+                    }
                 
                     // Si no tiene franjas ocupadas activas, eliminar el día y sus franjas
-                    if (!$tieneFranjasOcupadas) {
-                        if ($day->fecha >= $fechaActual) {
-                        $day->timeSlots()->delete();
-                        $day->delete();
-                    }
+                    $day->timeSlots()->delete();
+                    $day->delete();
                 }
+                
             }
         }
         

@@ -40,7 +40,7 @@ Route::group(['prefix' => '/',], function () {
 
     Route::put('barbero/disponibilidad/', [TimeSlotController::class, 'ocuparFranja']); //Revisar ruta
 
-    Route::put('profiles/{profileId}/horarios/{fecha}', [TimeSlotController::class, 'actualizarHorarioPorFecha']);
+    Route::put('barbero/{profileId}/horarios/{fecha}', [TimeSlotController::class, 'actualizarHorarioPorFecha']);
 
 
     // Ruta para actualizar una franja horaria específica
@@ -134,9 +134,10 @@ Route::get('/barber-availability/{id}/{date}', [BarberController::class, 'getAva
 Route::get('/barber-agenda/{id}/{date}', [BarberController::class, 'getAgenda']);
 
 Route::post('/barber-agenda/{id}/{start_date}/{end_date}', [BarberController::class, 'updateAvailability']);
-Route::post('/agenda-reservation/{id}/{date}', [BarberController::class, 'updateReservation']);
+Route::put('/agenda-reservation', [BarberController::class, 'updateReservation']);
 
 Route::get('/expired-reservations', [ReservationController::class, 'expiredReservations']);
+Route::put('/update-reservations', [ReservationController::class, 'updateReservations']);
 Route::get('/', function () {
     echo "
     <html>
