@@ -58,7 +58,7 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
-            $user->tokens()->delete();
+            // $user->tokens()->delete();
 
             $token = $user->createToken("token")->plainTextToken;
             $role = $user->profiles()->first()->role()->where('status', true)->first()->name ?? null;
