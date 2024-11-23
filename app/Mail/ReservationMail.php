@@ -13,6 +13,7 @@ class ReservationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $role;
     public $client_name;
     public $barber_name;
     public $services_details;
@@ -20,7 +21,7 @@ class ReservationMail extends Mailable
     public $date;
     public $time;
     public $status;
-    public $role;
+    
 
 
     /**
@@ -46,6 +47,8 @@ class ReservationMail extends Mailable
         if (json_last_error() === JSON_ERROR_NONE) {
             // Si se decodifica correctamente, unir los nombres con comas
             $this->services_details = implode(', ', array_column($services_details_array, 'nombre'));
+        } else{
+            
         }
 
         return $this->with(
