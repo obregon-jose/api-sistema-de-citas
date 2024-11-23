@@ -96,14 +96,14 @@
 </head>
 <body>
   <div class="container">
-    @if ($role === 2)
+    @if ($role === 1)
     <div class="header">
-        Hola <span>{{ $barber_name }}</span>, tienes una nueva reserva, revisa su agenda.<br>
+      Hola <span>{{ $client_name }}</span>, tu reserva ha sido confirmada.<br>
     </div>
     @else
-      <div class="header">
-      Hola <span>{{ $client_name }}</span>, tu reserva ha sido confirmada.<br>
-      </div>
+    <div class="header">
+      Hola <span>{{ $barber_name }}</span>, tienes una nueva reserva, revisa su agenda.<br>
+    </div>
     @endif   
     
     <div class="section-title">
@@ -122,15 +122,15 @@
           <th>Hora</th>
           <td>{{ $time }}</td>
         </tr>
-        @if ($role === 2)
-          <tr>
-            <th>Cliente</th>
-            <td>{{ $client_name }}</td>
-          </tr>
-        @else
+        @if ($role === 1)
           <tr>
             <th>Peluquero</th>
             <td>{{ $barber_name }}</td>
+          </tr>
+        @else
+          <tr> 
+            <th>Cliente</th>
+            <td>{{ $client_name }}</td>
           </tr>
         @endif 
         

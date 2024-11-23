@@ -2,7 +2,7 @@ name: Deploy API Sistema de Gestion de Citas
 
 on:
   push:
-    branches: [ main ]  # Ajusta esto según tu rama principal
+    branches: [ develop ]  # Ajusta esto según tu rama principal
 
 jobs:
   deploy:
