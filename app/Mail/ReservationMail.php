@@ -50,6 +50,8 @@ class ReservationMail extends Mailable
         } else{
             
         }
+        
+        $this->time = date("g:i A", strtotime($this->time));
 
         return $this->with(
             [
@@ -70,7 +72,7 @@ class ReservationMail extends Mailable
      */
     public function envelope(): Envelope
     {
-        if ($this->status == 'cancelled') {
+        if ($this->status === 'cancelled') {
             return new Envelope(
                 subject: 'Reservación Cancelada',
             );
