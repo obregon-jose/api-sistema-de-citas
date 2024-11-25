@@ -4,7 +4,7 @@
   <link rel="stylesheet" href="Style.css">
    <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Confirmación de Reserva</title>
+  <title>Reserva cancelada</title>
    <style>
     body {
     font-family: Arial, sans-serif;
@@ -98,16 +98,16 @@
   <div class="container">
     @if ($role === 1)
     <div class="header">
-      Hola, <span>{{ $client_name }}</span>, tu reserva ha sido confirmada.<br>
+      Hola, <span>{{ $client_name }}</span>, tu reserva ha sido cancelada.<br>
     </div>
     @else
     <div class="header">
-      Hola, <span>{{ $barber_name }}</span>, tienes una nueva reserva, revisa tu agenda.<br>
+      Hola, <span>{{ $barber_name }}</span>, se ha cancelado la siguiente reserva.<br>
     </div>
     @endif   
     
     <div class="section-title">
-        DETALLES
+        DETALLES DE LA RESERVA CANCELADA
     </div>
 
     <div class="content">

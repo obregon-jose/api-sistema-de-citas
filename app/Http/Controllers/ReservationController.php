@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendCancelReservationEmail;
+use App\Jobs\SendConfirmReservationEmail;
 use App\Jobs\SendReservationEmail;
 use App\Models\AttentionQuote;
 use App\Models\Reservation;
@@ -94,7 +96,7 @@ class ReservationController extends Controller
                         
             // Devolver respuesta
             return response()->json([
-                'message' => 'Su Reserva se a generado con éxito',
+                'message' => 'Su reserva se ha generado con éxito',
                 // 'reservation' => $reservation,
                 // 'quote' => $attentionQuote,
             ], 201);
@@ -310,6 +312,15 @@ class ReservationController extends Controller
                     }
                 }
             }
+            if ($status === 'cancelled') {
+                // Enviar correo de cancelación
+                SendCancelReservationEmail::dispatch($attentionQuote, $reservation);
+            }
+            else if ($status === 'completed') {
+                // Enviar correo de confirmación
+                SendConfirmReservationEmail::dispatch($attentionQuote, $reservation);
+            }
+           
             return response()->json([
                 'message' => 'Reservas y citas actualizadas con éxito.'
             ], 200);
