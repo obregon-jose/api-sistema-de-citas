@@ -39,4 +39,11 @@ jobs:
         # ssh $SSH_USER@$SSH_HOST << 'EOF'
           
           # php artisan migrate
+          # php artisan queue:restart
+          
+          # php artisan config:clear
+          # php artisan route:clear
+          # php artisan cache:clear
+          # php artisan optimize
+
         # EOF 

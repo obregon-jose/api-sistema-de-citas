@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ServiceUpdate;
 use App\Models\Service;
 use Illuminate\Http\Request;
 
@@ -86,6 +87,9 @@ class ServiceController extends Controller
             }
             
             $service = Service::create($request->all());
+            // Emitir el evento con los datos del servicio actualizado
+            broadcast(new ServiceUpdate($service));
+            // event(new ServiceUpdate($service));
 
             return response()->json([
                 'message' => 'servicio creado con éxito.',
@@ -203,7 +207,7 @@ class ServiceController extends Controller
             ]);
 
             $service->update($validatedService);
-
+            broadcast(new ServiceUpdate($service));
             return response()->json([
                 'message' => 'Servicio actualizado',
                 // 'servicio' => $service,
@@ -250,7 +254,15 @@ class ServiceController extends Controller
         //
         try {
             $service = service::findOrFail($id);
+            $serviceDelete = $service;
+            // broadcast(new ServiceUpdate($serviceDelete));
+            // Emitir evento indicando eliminación
+            // broadcast(new ServiceUpdate([
+            //     'action' => 'delete',
+            //     'serviceId' => $serviceDelete,
+            // ]));
             $service->delete();
+
             return response()->json([
                 'message' => 'El service ha pasado a estar inactivo.', //esto esta eliminando
             ], 200);
