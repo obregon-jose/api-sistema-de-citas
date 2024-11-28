@@ -133,6 +133,7 @@ class UserController extends Controller
             // Crear el detalle del usuario
             UserDetail::create([
                 'user_id' => $user->id,
+                'phone' => $validatedData['phone'],
             ]);
             //se podria consultar el el envio del correo
             $roleName = Role::find($defaultRoleId)->name;
