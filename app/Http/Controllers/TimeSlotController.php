@@ -190,11 +190,20 @@ public function actualizarHorarioPorFecha(Request $request, $profileId, $fecha)
             ->where('fecha', $fecha)
             ->first();
 
+    $diaNombre = Carbon::parse($fecha)->format('l'); // Día en inglés
+
+    // Mapa de días en inglés a español
+    $diasEnInglesAEspanol = [
+        'Monday' => 'LUNES', 'Tuesday' => 'MARTES', 'Wednesday' => 'MIERCOLES',
+        'Thursday' => 'JUEVES', 'Friday' => 'VIERNES', 'Saturday' => 'SABADO', 'Sunday' => 'DOMINGO'
+    ];
+
+    $diaNombreSolicitud = $diasEnInglesAEspanol[$diaNombre] ?? null;
     // Si no existe el día, lo creamos
     if (!$day) {
         $day = Day::create([
             'profile_id' => $profileId,
-            'name' => Carbon::parse($fecha)->format('l'), // nombre del día
+            'name' => $diaNombreSolicitud, // nombre del día
             'fecha' => $fecha,
         ]);
     }
