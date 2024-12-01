@@ -99,38 +99,79 @@ class TimeSlotController extends Controller
 
     }
 
-    public function obtenerFranjasPorFecha($profile_id, $fecha)
+    public function obtenerFranjasPorFecha($profile_id, $fecha, $retardo = 60)
 {
+    // try {
+    //     // Validación de los parámetros
+    //     if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
+    //         return response()->json(['message' => 'Formato de fecha inválido.'], 422);
+    //     }
+
+    //     // Busca el día correspondiente para la fecha y el perfil del peluquero
+    //     $day = Day::where('fecha', $fecha)
+    //         ->where('profile_id', $profile_id)
+    //         ->first();
+
+    //     // Verifica si el día existe
+    //     if (!$day) {
+    //         return response()->json(['message' => 'No se encontraron horarios para esta fecha y peluquero.'], 404);
+    //     }
+
+    //     // Obtén las franjas horarias (TimeSlots) para el día específico
+    //     $timeSlots = TimeSlot::where('day_id', $day->id)
+    //         ->where('available', true)  // Solo franjas disponibles
+    //         ->get(['hour_start', 'hour_end', 'available']);
+
+    //     return response()->json([
+    //         'fecha' => $day->fecha,
+    //         'dia' => $day->name,
+    //         'franjas' => $timeSlots,
+    //     ], 200);
+
+    // } catch (\Exception $e) {
+    //     return response()->json(['message' => 'Error interno del servidor.'], 500);
+    // }
     try {
         // Validación de los parámetros
         if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
             return response()->json(['message' => 'Formato de fecha inválido.'], 422);
         }
-
+    
         // Busca el día correspondiente para la fecha y el perfil del peluquero
         $day = Day::where('fecha', $fecha)
             ->where('profile_id', $profile_id)
             ->first();
-
+    
         // Verifica si el día existe
         if (!$day) {
             return response()->json(['message' => 'No se encontraron horarios para esta fecha y peluquero.'], 404);
         }
-
-        // Obtén las franjas horarias (TimeSlots) para el día específico
+    
+        // Obtén la hora actual en la zona horaria de Colombia
+        $horaActual = now()->setTimezone('America/Bogota');
+    
+        // Suma minutos a la hora actual para evitar que reserve a la misma hora actual
+        $hora = $horaActual->copy()->addMinutes($retardo);
+    
+        // Obtén las franjas horarias (TimeSlots) disponibles y mayores o iguales a la hora modificada
         $timeSlots = TimeSlot::where('day_id', $day->id)
-            ->where('available', true)  // Solo franjas disponibles
+            ->where('available', true) // Solo franjas disponibles
+            ->where('hour_start', '>=', $hora->format('H:i:s')) // Franjas iguales o mayores a la hora con 60 minutos más
             ->get(['hour_start', 'hour_end', 'available']);
-
+    
         return response()->json([
-            'fecha' => $day->fecha,
-            'dia' => $day->name,
+            // 'fecha' => $day->fecha,
+            // 'dia' => $day->name,
+            // 'hora_actual' => $horaActual->format('H:i:s'),
+            // 'hora_mas_60' => $hora->format('H:i:s'),
             'franjas' => $timeSlots,
         ], 200);
-
+    
     } catch (\Exception $e) {
         return response()->json(['message' => 'Error interno del servidor.'], 500);
     }
+    
+    
 }
 
 
