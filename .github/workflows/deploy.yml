@@ -1,4 +1,4 @@
-name: Deploy API NeoBarber Test
+name: Deploy API NeoBarber 
 
 on:
   push:
