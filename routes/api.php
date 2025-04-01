@@ -18,12 +18,14 @@ use App\Http\Controllers\TimeSlotController;
 
 // RUTAS PUBLICAS (No requieren autenticación)
 Route::group(['prefix' => '/',], function () {
+    Route::post('/users', [UserController::class, 'store'])->middleware('throttle:10,1'); // se registrar como cliente
+    Route::post('/login', [LoginController::class, 'login']);
+
     Route::post('password/send-reset-code', [PasswordResetController::class, 'sendResetCode']);
     Route::post('password/verify-reset-code', [PasswordResetController::class, 'verifyResetCode']);
     Route::post('password/reset-update', [PasswordResetController::class, 'updatePassword']);
 
-    Route::post('/users', [UserController::class, 'store']); // se registra como cliente
-    Route::post('/login', [LoginController::class, 'login']);
+    
 
     // Mostrar servicios
     Route::get('/services',[ServiceController::class,'index']);

@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\UserRequest;
 use App\Jobs\SendWelcomeEmail;
 use App\Models\Profile;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\UserDetail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -101,54 +104,38 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function store(Request $request)
+    public function store(UserRequest $request)
     {
+        DB::beginTransaction();
         try {
-            $defaultRoleId = 1;
-            
-            $validatedData = $request->validate([
-                //revisar necesidad de validacion
-                'name' => 'sometimes',
-                'email' => 'sometimes',
-                'password' => 'sometimes',
-                'phone' => 'sometimes'
-            ]);
 
-            // Verificar si el correo ya está registrado
-            if (User::where('email', $validatedData['email'])->exists()) {
-                return response()->json([
-                    'message' => 'Ya existe una cuenta con el correo electrónico ingresado.',
-                ], 400);
-            }
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => bcrypt($request->password),
+            ]);
+    
+            $user->detail()->create([
+                'phone' => $request->phone,
+            ]);
+    
             
-            $validatedData['password'] = bcrypt($validatedData['password']);
-
-            // Crear el usuario
-            $user = User::create($validatedData);
-            // Crear el perfil del usuario
-            Profile::create([
+            $user->profiles()->create([
                 'user_id' => $user->id,
-                'role_id' => $defaultRoleId,
             ]);
-            // Crear el detalle del usuario
-            UserDetail::create([
-                'user_id' => $user->id,
-                'phone' => $validatedData['phone'],
-            ]);
+            DB::commit();
             //se podria consultar el el envio del correo
-            $roleName = Role::find($defaultRoleId)->name;
-            
+            $roleName = Role::find(1)->name;
             // Enviar correo de bienvenida
             SendWelcomeEmail::dispatch($user, $roleName,'');
                         
-            // Devolver respuesta
+            // // Devolver respuesta
             return response()->json([
-                'message' => 'Su cuenta se ha registrado con éxito.',
-                // 'user' => $user,
-                // 'role' => $roleName,
+                'message' => 'Registrado exitosamente',
             ], 201);
      
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',
                 'error' => $e->getMessage(),

@@ -1,4 +1,4 @@
-name: Deploy API Sistema de Gestion de Citas
+name: Deploy API NeoBarber Test
 
 on:
   push:
@@ -8,42 +8,53 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - name: Check out code
+      uses: actions/checkout@v4
 
-    - name: Setup PHP
+    - name: Set up PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2'  # Asegúrate de que esta versión sea compatible con Laravel 11
+        php-version: '8.3'  # Asegúrate de que esta versión sea compatible con Laravel 11
+        #extensions: mbstring, ctype, fileinfo, openssl, pdo, tokenizer, xml # Añade extensiones necesarias
 
     - name: Install Composer Dependencies
-      run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-
+      run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --optimize-autoloader
+      
     # - name: Run Tests
     #   run: php artisan test
 
-    - name: Setup SSH Key
-      uses: webfactory/ssh-agent@v0.5.0
+    - name: Set up SSH Key
+      uses: webfactory/ssh-agent@v0.5.3
       with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        ssh-private-key: ${{ secrets.VPS_PRIVATE_KEY }}
 
     - name: Add Host Key
-      run: echo "${{ secrets.KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+      run: echo "${{ secrets.VPS_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
 
     - name: Deploy to Server
       env:
-        SSH_HOST: ${{ secrets.SSH_HOST }}
-        SSH_USER: ${{ secrets.SSH_USER }}
-        SSH_PATH: ${{ secrets.SSH_PATH }}
+          SSH_HOST: ${{ secrets.VPS_HOST }}
+          SSH_USER: ${{ secrets.VPS_USER }}
+          SSH_PATH: ${{ secrets.VPS_PATH }}
       run: |
-        rsync -avz -e "ssh -o StrictHostKeyChecking=no" . ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_PATH }}
-        # ssh $SSH_USER@$SSH_HOST << 'EOF'
-          
+        rsync -avz --exclude=".git" --exclude="node_modules" --exclude="storage/logs" \ -e "ssh -o StrictHostKeyChecking=no" . ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_PATH }}
+        ssh $SSH_USER@$SSH_HOST << 'EOF'
+          export SSH_PATH=${{ secrets.VPS_PATH }}
+          cd \$SSH_PATH
           # php artisan migrate
-          # php artisan queue:restart
+          # php artisan migrate: refresh --seed
+          # php artisan migrate --force
+          # php artisan db:seed --force
+          # php artisan db:seed --force --class=DatabaseSeeder
           
-          # php artisan config:clear
-          # php artisan route:clear
-          # php artisan cache:clear
-          # php artisan optimize
 
-        # EOF 
+          # Reiniciar colas de trabajo sin interrumpir procesos en ejecución
+          php artisan queue:flush
+          sleep 3
+          php artisan queue:restart
+          
+          # Optimizar caché sin borrar datos importantes
+          php artisan config:cache
+          php artisan route:cache
+          php artisan optimize
+        EOF 

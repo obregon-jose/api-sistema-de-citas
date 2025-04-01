@@ -15,9 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('role_id')->default(1)->constrained()->onDelete('cascade');
-            $table->unique(['user_id', 'role_id']); // user_id y role_id deben ser únicos en combinación
             $table->boolean('status')->default(1);
             $table->timestamps();
+
+            $table->unique(['user_id', 'role_id']); // user_id y role_id deben ser únicos en combinación
         });
     }
 

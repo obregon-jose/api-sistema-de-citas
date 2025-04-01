@@ -22,7 +22,7 @@ class Profile extends Model
     {
         return $this->belongsTo(Role::class);
     }
-
+/*-----------------------------------------------------------------*/
     // Relación con el reserva - Cliente id
     public function reservation()
     {

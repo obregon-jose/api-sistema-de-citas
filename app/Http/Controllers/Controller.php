@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 /**
  * @OA\Info(
- *     title="API de Sistema de Citas",
+ *     title="NeoBarber: API de Sistema de Citas",
  *     version="1.0.0",
- *     description="Documentación de la API REST para la gestión de citas/reservas en un sistema de peluquería",
+ *     description="Documentación de la API REST para la gestión de citas/reservas en una sala de peluquería",
  *     @OA\Contact(
- *         email="jo46646@gmail.com"
+ *         email="obregonjose812@gmail.com"
  *     )
  * )
  */
