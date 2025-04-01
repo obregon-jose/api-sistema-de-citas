@@ -37,7 +37,7 @@ jobs:
           SSH_USER: ${{ secrets.VPS_USER }}
           SSH_PATH: ${{ secrets.VPS_PATH }}
       run: |
-        rsync -avz --exclude=".git" --exclude="node_modules" --exclude="storage/logs" \ -e "ssh -o StrictHostKeyChecking=no" . ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_PATH }}
+        rsync -avz --exclude=".git" --exclude="node_modules" --exclude="storage/logs"  -e "ssh -o StrictHostKeyChecking=no" . ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_PATH }}
         ssh $SSH_USER@$SSH_HOST << 'EOF'
           export SSH_PATH=${{ secrets.VPS_PATH }}
           cd \$SSH_PATH
