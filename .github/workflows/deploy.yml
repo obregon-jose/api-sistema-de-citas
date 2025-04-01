@@ -1,4 +1,4 @@
-name: Deploy API NeoBarber Test
+name: Deploy API NeoBarber
 
 on:
   push:
@@ -46,7 +46,7 @@ jobs:
           # php artisan migrate --force
           # php artisan db:seed --force
           # php artisan db:seed --force --class=DatabaseSeeder
-          
+
 
           # Reiniciar colas de trabajo sin interrumpir procesos en ejecución
           php artisan queue:flush
