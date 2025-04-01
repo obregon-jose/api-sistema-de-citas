@@ -38,23 +38,12 @@ jobs:
           SSH_PATH: ${{ secrets.VPS_PATH }}
       run: |
         rsync -avz --exclude=".git" --exclude="node_modules" --exclude="storage/logs"  -e "ssh -o StrictHostKeyChecking=no" . ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_PATH }}
-        ssh $SSH_USER@$SSH_HOST << 'EOF'
-          export SSH_PATH=${{ secrets.VPS_PATH }}
-          cd \$SSH_PATH
-          # php artisan migrate
-          # php artisan migrate: refresh --seed
-          # php artisan migrate --force
-          # php artisan db:seed --force
-          # php artisan db:seed --force --class=DatabaseSeeder
-
-
-          # Reiniciar colas de trabajo sin interrumpir procesos en ejecución
-          php artisan queue:flush
-          sleep 3
-          php artisan queue:restart
-          
-          # Optimizar caché sin borrar datos importantes
-          php artisan config:cache
-          php artisan route:cache
-          php artisan optimize
-        EOF 
+        # ssh $SSH_USER@$SSH_HOST << EOF
+        #   cd ${SSH_PATH} 
+        #   php artisan config:cache
+        #   php artisan route:cache
+        #   php artisan optimize
+        #   php artisan queue:flush
+        #   sleep 3
+        #   php artisan queue:restart
+        # EOF
