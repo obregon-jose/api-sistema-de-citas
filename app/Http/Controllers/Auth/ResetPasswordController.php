@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\PasswordRecoverRequest;
+use App\Http\Requests\RecoverPasswordRequest;
 use App\Jobs\SendResetCodeEmail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class PasswordResetController extends Controller
+class ResetPasswordController extends Controller
 {
     /**
      * @OA\Post(
@@ -40,32 +40,25 @@ class PasswordResetController extends Controller
      *     )
      * )
      */
-    public function sendResetCode(PasswordRecoverRequest $request)
+    public function sendCode(Request $request)
     {
         try {
             $user = User::firstWhere('email', $request->email);
-            // if (!$user) {
-            //     return response()->json([
-            //         'message' => 'No hemos encentrado una cuanta asociada a este correo.'
-            //     ], 404);
-            // }
 
             $code = rand(100000, 999999);
-            DB::table('password_reset_tokens')->updateOrInsert(
-    ['email' => $request->email],
-                [
-                    'code' => $code,
-                    'created_at' => now()
-                ]
-            );
 
-            // Despachar el Job para enviar el correo en segundo plano
+            DB::table('password_reset_tokens')->updateOrInsert([
+                'email' => $request->email,
+                'code' => $code,
+                'created_at' => now()
+            ]);
+
             SendResetCodeEmail::dispatch($user, $code);
+
             return response()->json([
                 'message' => 'Código de verificación  enviado al correo electrónico.'
             ], 200);
         } catch (\Exception $e) {
-            // DB::rollBack();
             return response()->json([
                 'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',
                 'error' => $e->getMessage(),
@@ -107,7 +100,7 @@ class PasswordResetController extends Controller
     * )
     */
 
-    public function verifyResetCode(PasswordRecoverRequest $request)
+    public function verifyCode(RecoverPasswordRequest $request)
     {
         return response()->json([
             'message' => 'Verificación exitosa',
@@ -138,21 +131,9 @@ class PasswordResetController extends Controller
      *     )
      * )
      */
-    public function updatePassword(PasswordRecoverRequest $request)
+    public function updatePassword(RecoverPasswordRequest $request)
     {
-        // $exists = DB::table('password_reset_tokens')
-        // ->where('email', $request->email)
-        // ->where('code', $request->code)
-        // ->exists();
-
-        // if (!$exists) {
-        //     return response()->json([
-        //         'message' => 'Por favor, solicite un código de restablecimiento.'
-        //     ], 400);
-        // }
         try{
-
-
             //Actualizar la contraseña del usuario
             User::where('email', $request->email)->update(['password' => bcrypt($request->password)]);
 
@@ -163,7 +144,6 @@ class PasswordResetController extends Controller
                 'message' => 'Actualización exitosa.',
             ], 200);
         } catch (\Exception $e) {
-            // DB::rollBack();
             return response()->json([
                 'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',
                 'error' => $e->getMessage(),

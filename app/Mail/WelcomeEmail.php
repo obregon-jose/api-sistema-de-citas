@@ -15,18 +15,17 @@ class WelcomeEmail extends Mailable
 
     public $user;
     public $role;
-    public $password;
+    public $passwordPath  = "GENRAR ENLACE PARA IR A ESTABLECER CLAVE";
 
 
     /**
      * Create a new message instance.
      */
-    public function __construct($user, $role, $password)
+    public function __construct($user, $role)
     {
         //
         $this->user = $user;
         $this->role = $role;
-        $this->password = $password;
     }
     
     public function build()
@@ -35,7 +34,7 @@ class WelcomeEmail extends Mailable
             [
                 'user' => $this->user, 
                 'role' => $this->role, 
-                'password' => $this->password,
+                'passwordPath' => $this->passwordPath,
             ]);
     }
 

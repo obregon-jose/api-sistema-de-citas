@@ -65,30 +65,25 @@
         
         <div class="content">
             <h2>Hola, {{ $user->name }}!</h2>
-            <!-- @if ($role === 'cliente')
-            <p>Estamos emocionados de que te unas a nuestra comunidad de {{ env('APP_NAME') }}, 
-                donde la experiencia de reserva es más fácil y divertida.</p> 
-            @endif -->
-
+            
             <br>
             @if ($role == 'cliente')
             <div class="content-item">
                 <p>Estamos emocionados de que te unas a nuestra comunidad de {{ env('APP_NAME') }}, 
                     donde la experiencia de reserva es más fácil y divertida.</p>
-                <p>¡Gracias por registrarte! Ahora puedes reservar tus turnos 
+                <p>Ahora puedes reservar tus turnos 
                     con solo un clic y disfrutar de un servicio excepcional. ¡Te esperamos 
                     en {{ env('BARBERSHOP_NAME') }} para cuidar de tu estilo!</p>
             </div>
 
             @elseif ($role == 'peluquero')
             <div class="content-item">
-                <p>¡Bienvenido al equipo de {{ env('BARBERSHOP_NAME') }}! Tu talento y dedicación son 
-                    clave para ofrecer a nuestros clientes el mejor servicio.</p>
+                <p>¡Ahora eres parte del equipo {{ env('BARBERSHOP_NAME') }}! Tu talento y dedicación son 
+                    claves para ofrecer a nuestros clientes el mejor servicio.</p>
             </div>
             @elseif ($role == 'root')
             <div class="content-item">
-                <p>El sistema de {{ env('APP_NAME') }} se ha lanzado bajo la empresa <strong>{{ env('BARBERSHOP_NAME') }}</strong> y está en línea. Ahora puedes comenzar a gestionar 
-                    todas las operaciones y asegurarte de que todo funcione sin problemas.</p>
+                <p> <strong>{{ env('APP_NAME') }}</strong> está en línea, asegurarte de que todo funcione sin problemas.</p>
             </div>
 
             @else
@@ -102,14 +97,13 @@
             <div class="content-item">
                 <p class="left-align">Para comenzar, inicia sesión en tu cuenta con las siguientes credenciales:</p>
                 <p class="left-align">Correo: {{ $user->email }}</p>
-                <p class="left-align">Contraseña: {{ $password }}</p>
+                <p class="left-align">Establecer Contraseña: {{ $passwordPath }}</p>
                 <p class="left-align">Te sugerimos cambiar esta contraseña después de tu primer inicio de sesión.</p>
             </div>
             @endif
             
             <br>
             <div class="content-item">
-                <!-- <p>Si tienes alguna pregunta, no dudes en contactarnos.</p> -->
                 <p>¡Que tengas un gran día!</p>
             </div>
         </div>

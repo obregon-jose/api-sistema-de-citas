@@ -16,23 +16,17 @@ class UserSeeder extends Seeder
      * Run the database seeds.
      */
     public function run(): void
-    {
-        //
-        //$GeneratorController = new RandomPasswordGenerator();
-        //$passwordGenerado = $GeneratorController->generateRandomPassword();
-        
-        // Crear el usuario root
+    {        
         $rootUser = User::updateOrCreate([
                 'email' => 'obregonjose812@gmail.com', 
                 'name' => 'JOSE OBREGON',
                 'password' => bcrypt('obregonjose812@gmail.com'), 
         ]);
 
-        // Crear el perfil para el usuario root
         $rootUser->profiles()->updateOrCreate([
                 'role_id' => 5, 
         ]); 
-        //
+        
         $rootUser->detail()->updateOrCreate( [
                 'nickname' => 'root', 
                 'phone' => '1234567890', 

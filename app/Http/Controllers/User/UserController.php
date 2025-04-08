@@ -3,13 +3,10 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RegisterRequest;
-use App\Http\Requests\UserRequest;
+use App\Http\Requests\UserRegisterRequest;
 use App\Jobs\SendWelcomeEmail;
-use App\Models\Profile;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\UserDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -104,7 +101,7 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function store(UserRequest $request)
+    public function store(UserRegisterRequest $request)
     {
         DB::beginTransaction();
         try {
@@ -124,12 +121,12 @@ class UserController extends Controller
                 'user_id' => $user->id,
             ]);
             DB::commit();
-            //se podria consultar el el envio del correo
+            
             $roleName = Role::find(1)->name;
-            // Enviar correo de bienvenida
-            SendWelcomeEmail::dispatch($user, $roleName,'');
+            
+            SendWelcomeEmail::dispatch($user, $roleName);
                         
-            // // Devolver respuesta
+        
             return response()->json([
                 'message' => 'Registrado exitosamente',
             ], 201);
@@ -174,12 +171,16 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
         try {
-            // $user = User::with(['profiles.role', 'detail'])->findOrFail($id);
             $user = User::with(['detail'])->findOrFail($id);
             return response()->json([
-                'user' => $user,
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'nickname' => $user->detail->nickname ?? null,
+                'phone' => $user->detail->phone ?? null,
+                'photo' => $user->detail->photo ?? null,
+                'note' => $user->detail->note ?? null,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -242,6 +243,28 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         //
+        // $userDetail = UserDetail::where('user_id', $user_id)->firstOrFail();
+
+            // $validatedDetail = $request->validate([
+            //     // resisar necesidad de validaciones
+            //     'name' => 'nullable|string|max:255',
+            //     'nickname' => 'nullable|string|max:255',
+            //     'phone' => 'nullable|string|min:8|max:10',
+            //     'photo' => 'nullable|string|max:255',
+            //     'note' => 'nullable|string',
+            // ]);
+
+            // $userDetail->update($validatedDetail); // Actualiza el detalle de usuario
+
+            // // Actualiza el nombre en la tabla User
+            // User::where('id', $user_id)->update(['name' => $validatedDetail['name']]);
+            // $user = User::find($user_id);
+
+            // return response()->json([
+            //     'message' => 'Perfil actualizado con éxito.',
+            //     // 'user' => $user,
+            //     // 'userDetail' => $userDetail,
+            // ], 200); 
         try {
             $user = User::findOrFail($id);
             $validatedUser = $request->validate([
@@ -265,6 +288,32 @@ class UserController extends Controller
             ], 500);
         }
     }
+
+    // public function uploadImage(Request $request, $user_id)
+    // {
+    //     if ($request->hasFile('image')) {
+    //         $image = $request->file('image');
+
+    //         $imageName = Str::random(10) . '.png';
+    //         $filePath = "images/perfiles/" . $imageName;
+    //         $userDetail = UserDetail::where('user_id', $user_id)->first();
+    //         if ($userDetail && $userDetail->photo) {
+    //             $oldImagePath = str_replace(asset('storage/'), '', $userDetail->photo);
+    //             if (Storage::disk('public')->exists($oldImagePath)) {
+    //                 Storage::disk('public')->delete($oldImagePath);
+    //             }
+    //         }
+    //         Storage::disk('public')->put($filePath, file_get_contents($image));
+    //         $imageUrl = asset('storage/' . $filePath);
+    //         $userDetail->update(['photo' => $imageUrl]);
+    //         return response()->json([
+    //             'message' => 'Imagen subida.',
+    //             // 'url' => $imageUrl
+    //         ], 201);
+    //         //return response()->json(['url' => Storage::url($path)], 200);
+            
+    //     }
+    // }
 
     /**
      * @OA\Delete(

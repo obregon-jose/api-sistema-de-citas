@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\Role;
+use App\Http\Requests\LoginRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,32 +51,34 @@ class LoginController extends Controller
      * )
      */
 
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
+        //revisar respuesta de estado user,profile,role = false
+        $user = User::where('email', $request->email)
+            ->with(['profiles.role' => function ($query) {
+                $query->where('status', true);
+            }])
+            ->first();
 
-        $credentials = $request->only('email', 'password');
-
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            // $user->tokens()->delete();
-
-            $token = $user->createToken("token")->plainTextToken;
-            $role = $user->profiles()->first()->role()->where('status', true)->first()->name ?? null;
-
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
-                // 'id' => $user->id,
-                // 'name' => $user->name,
-                'role' => $role,
-                'token' => $token, 
-            ], 200);
+                'message' => 'Correo electrónico o contraseña incorrectos.'
+            ], 401);
         }
 
+        // Obtener el primer rol activo
+        $profile = $user->profiles->first();
+        $role = $profile->role->name ?? null;
+
+        // $user->tokens()->delete(); // mandar señal al frontend
+
         return response()->json([
-            'message' => 'Correo electrónico o contraseña incorrectos.',
-        ], 401);
+            'role' => $role,
+            'token' => $user->createToken("token")->plainTextToken,
+        ], 200);
     }
 
-    //Con eliminación suave
+    //Con eliminación suave - MODIFICAR PARA SU USO
     public function login2(Request $request)
     {
         $credentials = $request->only('email', 'password');

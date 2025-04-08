@@ -41,7 +41,7 @@ jobs:
         # ssh $SSH_USER@$SSH_HOST << EOF
         #   cd ${SSH_PATH} 
         #   php artisan config:cache
-        #   php artisan route:cache
+        #   php artisan route:cache 
         #   php artisan optimize
         #   php artisan queue:flush
         #   sleep 3

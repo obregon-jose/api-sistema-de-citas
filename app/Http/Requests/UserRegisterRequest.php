@@ -2,9 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 
-class PasswordRecoverRequest extends ApiFormRequest
+class UserRegisterRequest extends ApiFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,25 +22,28 @@ class PasswordRecoverRequest extends ApiFormRequest
     {
         return [
             //
-            'email' => 'required|email|exists:users,email',
-            'code' => 'sometimes|exists:password_reset_tokens,code',
-            'password' => 'sometimes|min:8|regex:/[A-Z]/|regex:/[0-9]/',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8|regex:/[A-Z]/|regex:/[0-9]/',
+            'phone' => 'nullable|string|max:10',            
         ];
     }
 
     public function messages(): array
     {
         return [
+            'name.required' => 'El campo nombre es obligatorio.',
+            'name.string' => 'El nombre debe ser una cadena de texto.',
+            'name.max' => 'El nombre no puede tener más de 50 caracteres.',
             'email.required' => 'El campo correo electrónico es obligatorio.',
             'email.email' => 'El correo electrónico debe ser una dirección válida.',
-            'email.exists' => 'No hemos encontrado una cuenta asociada a este correo.',
-            'code.required' => 'El campo código es obligatorio.',
-            'code.string' => 'El código debe ser una cadena de texto.',
-            'code.exists' => 'El código de verificación no es válido o ha expirado.',
+            'email.unique' => 'El correo electrónico ya ha sido registrado.',
             'password.required' => 'El campo contraseña es obligatorio.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
-            'password.regex' => 'La contraseña debe incluir al menos una letra mayúscula, una letra minúscula y un número.',
-            'email.exists' || 'code.exists' => 'Por favor, solicite un código de restablecimiento.',
+            'password.regex' => 'La contraseña debe incluir al menos una una letra mayúscula y un número.',
+            'phone.string' => 'El teléfono debe ser una cadena de texto.',
+            'phone.max' => 'El teléfono no puede tener más de 10 caracteres.',
         ];
     }
+   
 }

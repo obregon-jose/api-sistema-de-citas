@@ -92,13 +92,59 @@ class RegisterController extends Controller
             }
             
             // Enviar correo de bienvenida
-            SendWelcomeEmail::dispatch($user, $roleName, $passwordDesencriptado);
+            SendWelcomeEmail::dispatch($user, $roleName);
             
             // Devolver respuesta
             return response()->json([
                 'message' => $roleName . ' registrado con éxito.',
             ], 201);
  
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',
+                'error' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    public function passwordUpdate(Request $request)
+    {
+        try {
+            $validatedData = $request->validate([
+                'password' => 'required|string|min:8|confirmed',
+            ]);
+            $user = User::find($request->user()->id);
+            $user->password = bcrypt($validatedData['password']);
+            $user->save();
+
+            return response()->json([
+                'message' => 'Contraseña actualizada con éxito.',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',
+                'error' => $e->getMessage(),
+            ], 400);
+        }
+    }
+    public function passwordReset(Request $request)
+    {
+        try {
+            $validatedData = $request->validate([
+                'email' => 'required|email',
+            ]);
+            $user = User::where('email', $validatedData['email'])->first();
+            if (!$user) {
+                return response()->json([
+                    'message' => 'No se encontró un usuario con ese correo electrónico.',
+                ], 404);
+            }
+            // Enviar correo de restablecimiento de contraseña
+            // SendPasswordResetEmail::dispatch($user);
+            
+            return response()->json([
+                'message' => 'Se ha enviado un enlace para restablecer la contraseña al correo electrónico proporcionado.',
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',
