@@ -15,6 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->integer('price');
+            $table->string('description')->nullable();
+            $table->integer('duration')->nullable();
+
+            // $table->softDeletes();
             $table->timestamps();
         });
     }

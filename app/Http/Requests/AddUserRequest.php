@@ -2,8 +2,9 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Foundation\Http\FormRequest;
 
-class UserRegisterRequest extends ApiFormRequest
+class AddUserRequest extends APiFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -21,11 +22,10 @@ class UserRegisterRequest extends ApiFormRequest
     public function rules(): array
     {
         return [
-            //
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:50',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:8|regex:/[A-Z]/|regex:/[0-9]/',
-            'phone' => 'nullable|string|max:10',            
+            'password' => 'nullable|min:8|regex:/[A-Z]/|regex:/[0-9]/',
+            'role_id' => 'required|exists:roles,id',            
         ];
     }
 
@@ -40,10 +40,9 @@ class UserRegisterRequest extends ApiFormRequest
             'email.unique' => 'El correo electrónico ya ha sido registrado.',
             'password.required' => 'El campo contraseña es obligatorio.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
-            'password.regex' => 'La contraseña debe incluir al menos una una letra mayúscula y un número.',
-            'phone.string' => 'El teléfono debe ser una cadena de texto.',
-            'phone.max' => 'El teléfono no puede tener más de 10 caracteres.',
+            'password.regex' => 'La contraseña debe incluir al menos una letra mayúscula y un número.',
+            'role_id.required' => 'El rol es obligatorio',
+            'role_id.exists' => 'El rol seleccionado no es válido.'
         ];
     }
-   
 }

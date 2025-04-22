@@ -4,12 +4,13 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\BarberController;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AddUserRequest;
+use App\Http\Requests\RegisterUserRequest;
 use App\Jobs\SendWelcomeEmail;
 use App\Models\User;
 use App\Models\Role;
-use App\Models\Profile;
-use App\Models\UserDetail;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class RegisterController extends Controller
 {
@@ -53,99 +54,38 @@ class RegisterController extends Controller
      *     )
      * )
      */
-    public function register(Request $request) 
+    public function register(RegisterUserRequest $request)
     {
+        DB::beginTransaction();
         try {
-            $validatedData = $request->validate([
-                //revisar necesidad de validacion
-                'name' => 'sometimes',
-                'email' => 'sometimes',
-                'password' => 'sometimes', 
-                'role_id' => 'sometimes|exists:roles,id',
-            ]);
-            // Verificar si el correo ya está registrado
-            if (User::where('email', $validatedData['email'])->exists()) {
-                return response()->json([
-                    'message' => 'Ya existe un usuario registrado con el correo electrónico.',
-                ], 400);
-            }
-            $passwordDesencriptado = $validatedData['password'];
-            $validatedData['password'] = bcrypt($validatedData['password']);
 
-            // Crear el usuario
-            $user = User::create($validatedData);
-            Profile::create([
-                'user_id' => $user->id,
-                'role_id' => $validatedData['role_id'],
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => bcrypt($request->password),
             ]);
-            UserDetail::create([
-                'user_id' => $user->id,
+    
+            $user->detail()->create([
+                'phone' => $request->phone,
             ]);
-
-            $roleName = Role::find($validatedData['role_id'])->name;
-
-            if ($roleName == 'peluquero') {
-                //$availabilityController = new BarberController();
-                //$availabilityController->createDefaultAvailability($user->id);
-                // CAMBIAR ESTO A SEGUNDO PLANO
-                //CreateAvailability::dispatch($user->id);
-            }
+    
             
-            // Enviar correo de bienvenida
+            $user->profiles()->create([
+                'user_id' => $user->id,
+            ]);
+            DB::commit();
+            
+            $roleName = Role::find(1)->name;
+            
             SendWelcomeEmail::dispatch($user, $roleName);
-            
-            // Devolver respuesta
+                        
+        
             return response()->json([
-                'message' => $roleName . ' registrado con éxito.',
+                'message' => 'Registrado exitosamente',
             ], 201);
- 
+     
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',
-                'error' => $e->getMessage(),
-            ], 400);
-        }
-    }
-
-    public function passwordUpdate(Request $request)
-    {
-        try {
-            $validatedData = $request->validate([
-                'password' => 'required|string|min:8|confirmed',
-            ]);
-            $user = User::find($request->user()->id);
-            $user->password = bcrypt($validatedData['password']);
-            $user->save();
-
-            return response()->json([
-                'message' => 'Contraseña actualizada con éxito.',
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',
-                'error' => $e->getMessage(),
-            ], 400);
-        }
-    }
-    public function passwordReset(Request $request)
-    {
-        try {
-            $validatedData = $request->validate([
-                'email' => 'required|email',
-            ]);
-            $user = User::where('email', $validatedData['email'])->first();
-            if (!$user) {
-                return response()->json([
-                    'message' => 'No se encontró un usuario con ese correo electrónico.',
-                ], 404);
-            }
-            // Enviar correo de restablecimiento de contraseña
-            // SendPasswordResetEmail::dispatch($user);
-            
-            return response()->json([
-                'message' => 'Se ha enviado un enlace para restablecer la contraseña al correo electrónico proporcionado.',
-            ], 200);
-        } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',
                 'error' => $e->getMessage(),

@@ -12,9 +12,6 @@ class RoleController extends Controller
     //
     public function index()
     {
-        // $roles = Role::all();
-        // return response()->json($roles, 200);
-
         $user = Auth::user();
         $userRole = $user->profiles()->with('role')->get()->pluck('role.name')->unique()->toArray();
 

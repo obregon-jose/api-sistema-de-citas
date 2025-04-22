@@ -3,12 +3,17 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UserRegisterRequest;
+use App\Http\Requests\AddUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Jobs\SendWelcomeEmail;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\UserDetail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -101,36 +106,46 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function store(UserRegisterRequest $request)
+    public function store(AddUserRequest $request) 
     {
         DB::beginTransaction();
         try {
+            $passwordDecrypted = $request->password;
+            if (!$request->password) {
+                $passwordDecrypted = Str::random(10);
+            }
 
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => bcrypt($request->password),
+                'password' => bcrypt($passwordDecrypted),
             ]);
-    
-            $user->detail()->create([
-                'phone' => $request->phone,
-            ]);
-    
+            $user->detail()->create([]);
             
             $user->profiles()->create([
-                'user_id' => $user->id,
+                'role_id' => $request->role_id,
             ]);
+
             DB::commit();
+
+            $roleName = Role::find($request->role_id)->name;
+
+            if ($roleName == 'peluquero') {
+                //$availabilityController = new BarberController();
+                //$availabilityController->createDefaultAvailability($user->id);
+                // CAMBIAR ESTO A SEGUNDO PLANO
+                //CreateAvailability::dispatch($user->id);
+            }
             
-            $roleName = Role::find(1)->name;
-            
+            // Enviar correo de bienvenida
             SendWelcomeEmail::dispatch($user, $roleName);
-                        
-        
+            
+            // Devolver respuesta
             return response()->json([
-                'message' => 'Registrado exitosamente',
+                'message' => $roleName . ' registrado.',
+                'password' => $passwordDecrypted,
             ], 201);
-     
+ 
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -240,46 +255,19 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function update(Request $request, $id)
+    public function update(UpdateUserRequest $request)
     {
-        //
-        // $userDetail = UserDetail::where('user_id', $user_id)->firstOrFail();
-
-            // $validatedDetail = $request->validate([
-            //     // resisar necesidad de validaciones
-            //     'name' => 'nullable|string|max:255',
-            //     'nickname' => 'nullable|string|max:255',
-            //     'phone' => 'nullable|string|min:8|max:10',
-            //     'photo' => 'nullable|string|max:255',
-            //     'note' => 'nullable|string',
-            // ]);
-
-            // $userDetail->update($validatedDetail); // Actualiza el detalle de usuario
-
-            // // Actualiza el nombre en la tabla User
-            // User::where('id', $user_id)->update(['name' => $validatedDetail['name']]);
-            // $user = User::find($user_id);
-
-            // return response()->json([
-            //     'message' => 'Perfil actualizado con éxito.',
-            //     // 'user' => $user,
-            //     // 'userDetail' => $userDetail,
-            // ], 200); 
         try {
-            $user = User::findOrFail($id);
-            $validatedUser = $request->validate([
-                'name' => 'nullable|string|max:255',
-                'email' => 'nullable|email|unique:users,email,' . $user->id,
-                'password' => 'nullable|min:8|regex:/[a-z]/|regex:/[0-9]/',
-            ]);
+            $user = User::findOrFail(Auth::id());
 
-            $validatedUser['password'] = bcrypt($validatedUser['password']);
-
-            $user->update($validatedUser);
-
+            $user->update($request->only(['name']));
+            $user->detail()->update($request->only(['phone', 'nickname']));
+    
             return response()->json([
-                'message' => 'Usuario actualizado exitosamente.',
-                'user' => $user,
+                'message' => 'Actualizado exitosamente.',
+                // 'name' => $user->name,
+                // 'nickname' => $user->detail->nickname,
+                // 'phone' => $user->detail->phone, //revisar si debe ser unico
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -288,32 +276,29 @@ class UserController extends Controller
             ], 500);
         }
     }
+   public function updatePhoto(Request $request)
+    {
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
 
-    // public function uploadImage(Request $request, $user_id)
-    // {
-    //     if ($request->hasFile('image')) {
-    //         $image = $request->file('image');
-
-    //         $imageName = Str::random(10) . '.png';
-    //         $filePath = "images/perfiles/" . $imageName;
-    //         $userDetail = UserDetail::where('user_id', $user_id)->first();
-    //         if ($userDetail && $userDetail->photo) {
-    //             $oldImagePath = str_replace(asset('storage/'), '', $userDetail->photo);
-    //             if (Storage::disk('public')->exists($oldImagePath)) {
-    //                 Storage::disk('public')->delete($oldImagePath);
-    //             }
-    //         }
-    //         Storage::disk('public')->put($filePath, file_get_contents($image));
-    //         $imageUrl = asset('storage/' . $filePath);
-    //         $userDetail->update(['photo' => $imageUrl]);
-    //         return response()->json([
-    //             'message' => 'Imagen subida.',
-    //             // 'url' => $imageUrl
-    //         ], 201);
-    //         //return response()->json(['url' => Storage::url($path)], 200);
+            $imageName = Str::random(10) . '.jpg';
+            $filePath = "images/perfiles/" . $imageName;
+            $userDetail = UserDetail::where('user_id', Auth::id())->first();
+            if ($userDetail && $userDetail->photo) {
+                $oldImagePath = str_replace(asset('storage/'), '', $userDetail->photo);
+                if (Storage::disk('public')->exists($oldImagePath)) {
+                    Storage::disk('public')->delete($oldImagePath);
+                }
+            }
+            Storage::disk('public')->put($filePath, file_get_contents($image));
+            $imageUrl = asset('storage/' . $filePath);
+            $userDetail->update(['photo' => $imageUrl]);
+            return response()->json([
+                'url' => $imageUrl
+            ], 200);
             
-    //     }
-    // }
+        }
+    }
 
     /**
      * @OA\Delete(

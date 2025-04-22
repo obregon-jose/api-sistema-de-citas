@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Events\ServiceUpdate;
+use App\Http\Requests\RegisterServiceRequest;
+use App\Http\Requests\UpdateServiceRequest;
 use App\Models\Service;
+use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 
 class ServiceController extends Controller
@@ -75,25 +78,14 @@ class ServiceController extends Controller
      *     )
      * )
      */
-    public function store(Request $request)
+    public function store(RegisterServiceRequest $request, FirebaseService $firebase)
     {
-        //
         try {
-            // Verificar si el servicio ya está registrado
-            if (Service::where('name', $request->name)->exists()) {
-                return response()->json([
-                    'message' => 'Ya existe el servicio.',
-                ], 400);
-            }
-            
             $service = Service::create($request->all());
-            // Emitir el evento con los datos del servicio actualizado
-            broadcast(new ServiceUpdate($service));
-            // event(new ServiceUpdate($service));
+            $firebase->updateDataRealTime('register-service', $service);
 
             return response()->json([
-                'message' => 'servicio creado con éxito.',
-                // 'service' => $service,
+                'message' => 'servicio creado.',
             ], 201);
         } catch (\Exception $err) {
             return response()->json([
@@ -196,22 +188,17 @@ class ServiceController extends Controller
      *     )
      * )
      */
-    public function update(Request $request, $id)
+    public function update(UpdateServiceRequest $request, $id, FirebaseService $firebase)
     {
-        //
         try {
             $service = Service::findOrFail($id);
-            $validatedService = $request->validate([
-                'name' => 'nullable|unique:services,name,'.$service->id,
-                'price' => 'nullable|integer',
-            ]);
+            $service->update($request->all());
+            $firebase->updateDataRealTime('update-service', $service);
 
-            $service->update($validatedService);
-            broadcast(new ServiceUpdate($service));
             return response()->json([
                 'message' => 'Servicio actualizado',
-                // 'servicio' => $service,
             ], 200);
+            
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',
@@ -249,22 +236,16 @@ class ServiceController extends Controller
      *     )
      * )
      */
-    public function destroy($id)
+    public function destroy($id, FirebaseService $firebase)
     {
-        //
         try {
             $service = service::findOrFail($id);
-            $serviceDelete = $service;
-            // broadcast(new ServiceUpdate($serviceDelete));
-            // Emitir evento indicando eliminación
-            // broadcast(new ServiceUpdate([
-            //     'action' => 'delete',
-            //     'serviceId' => $serviceDelete,
-            // ]));
             $service->delete();
+            $firebase->updateDataRealTime('delete-service', [$id]);
+            
 
             return response()->json([
-                'message' => 'El service ha pasado a estar inactivo.', //esto esta eliminando
+                'message' => 'Eliminado.', 
             ], 200);
         } catch (\Exception $err) {
             return response()->json([

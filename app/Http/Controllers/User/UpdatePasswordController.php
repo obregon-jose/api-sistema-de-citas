@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class UpdatePasswordController extends Controller
@@ -17,5 +18,26 @@ class UpdatePasswordController extends Controller
         //     'message' => 'Su contraseña se a actualizado.',
         //     'success' => true,
         // ]);
+    }
+
+    public function passwordUpdate(Request $request)
+    {
+        try {
+            $validatedData = $request->validate([
+                'password' => 'required|string|min:8|confirmed',
+            ]);
+            $user = User::find($request->user()->id);
+            $user->password = bcrypt($validatedData['password']);
+            $user->save();
+
+            return response()->json([
+                'message' => 'Contraseña actualizada con éxito.',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo nuevamente más tarde.',
+                'error' => $e->getMessage(),
+            ], 400);
+        }
     }
 }

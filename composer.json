@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.2",
         "darkaonline/l5-swagger": "^8.6",
+        "kreait/firebase-php": "^7.18",
         "laravel/framework": "12.3",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
