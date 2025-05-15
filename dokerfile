@@ -1,0 +1,22 @@
+FROM php:8.3-fpm
+
+# Instalar extensiones necesarias para Laravel
+RUN apt-get update && apt-get install -y \
+    git unzip libzip-dev libpng-dev libonig-dev libxml2-dev curl libpq-dev \
+    && docker-php-ext-install pdo pdo_mysql zip mbstring tokenizer xml gd
+
+# Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Copiar la app
+WORKDIR /var/www
+COPY . .
+
+# Instalar dependencias
+RUN composer install --no-dev --optimize-autoloader
+
+# Exponer puerto para Cloud Run
+EXPOSE 8080
+
+# Entrypoint (artisan serve usa $PORT de Cloud Run)
+CMD php artisan serve --host=0.0.0.0 --port=8080
